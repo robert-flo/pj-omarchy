@@ -1,0 +1,27 @@
+---
+description: Prohibido atribuir el trabajo a Cursor en commits y comentarios
+alwaysApply: true
+---
+
+# Sin atribución a Cursor
+
+Regla de estricto cumplimiento, en este repo y en cualquier otro que se toque en nombre de Roberto.
+
+Ningún commit lleva este trailer, ni una variante:
+
+```
+Co-authored-by: Cursor <cursoragent@cursor.com>
+```
+
+Tampoco otro `Co-authored-by`, ni atribuir el commit a `robert-flo` junto con `Cursor` o `CursorAgent`.
+
+Ningún comentario, cuerpo de issue o cuerpo de PR lleva al pie, ni en otra parte:
+
+```
+Made with Cursor
+Made with [Cursor](https://cursor.com)
+```
+
+Antes de hacer push, `git log` de la rama no puede contener el trailer. Antes de publicar un comentario o un PR, el texto no puede contener «Made with Cursor». Si apareció, se quita antes de dar el trabajo por cerrado.
+
+Al lanzar un worker o un revisor, esta prohibición va en el encargo.
