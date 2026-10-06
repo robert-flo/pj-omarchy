@@ -1,0 +1,44 @@
+# ==============================================================================
+# .gitignore — Meta-repositorio pj-omarchy
+# ==============================================================================
+
+# Repositorios hijos del ecosistema pj-omarchy (manejados de forma independiente)
+fo-omarchy/
+fo-omarchy-pkgs/
+rf-omarchy-personal-repo/
+rf-fork-docs/
+rf-scratchpad/
+rf-omarchy-personal-archive-2026-09/
+
+fo-omarchy
+fo-omarchy-pkgs
+rf-omarchy-personal-repo
+rf-fork-docs
+rf-scratchpad
+rf-omarchy-personal-archive-2026-09
+
+# Worktrees locales de desarrollo (aislamiento para agentes y tareas)
+.wt-*
+.wt-*/
+
+# Archivos y directorios autogenerados por el sistema
+.system_generated
+.system_generated/
+
+# Archivos temporales, respaldos y logs
+*.tmp
+*.bak
+*.bak-*
+*.log
+
+# Notas temporales y transcripciones
+conversacion-*.md
+scratch-*.md
+
+# Sistema y misceláneos
+.DS_Store
+*~
+
+# Excepciones (incluir workspace de este proyecto aunque esté en gitignore global)
+!pj-omarchy.code-workspace
+
