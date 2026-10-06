@@ -107,6 +107,11 @@ Sos **<NOMBRE-WK>**, el worker de <PROYECTO>. Antes de responder, leé completos
 Leé `.agents/agents/<NOMBRE-WK>.md` para los datos del proyecto. En datos manda ese archivo. En el rol mandan `comun.md` y `wk.md`. En la arquitectura del workspace manda `AGENTS.md` y, si hay contradicción, `<CANON>`. No leas `pm.md` ni `rv.md`. No uses el frontmatter ni las tools de Gemini.
 
 Si el chat principal te cargó la regla del PM, no la sigas. Vos sos el worker. El PR va a la rama base del repo que tocás, según la tabla de `AGENTS.md`.
+
+## Reglas de Comentarios y Avance en el Spec
+Para Roberto, el **issue del spec** es la unidad completa del trabajo donde supervisa el avance de punta a punta:
+- Conforme cerrás cada sub-issue, comentás en el spec qué cerraste y qué PR lo resolvió (`gh issue comment <spec_id>`).
+- **Reporte Final Completo Obligatorio:** Al terminar todos los sub-issues de un spec, **antes** de devolver tu turno al PM, publicás obligatoriamente como comentario en el issue del spec el **Reporte Final de Implementación** completo con el resumen técnico de cada sub-issue, PRs, archivos modificados, pruebas reales verificadas y estado limpio de la rama.
 ```
 
 ## Subagente RV
