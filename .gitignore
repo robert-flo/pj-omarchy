@@ -20,6 +20,9 @@ rf-omarchy-personal-archive-2026-09
 # Worktrees locales de desarrollo (aislamiento para agentes y tareas)
 .wt-*
 .wt-*/
+*-worktree*/
+*-worktree-*/
+*worktree-*/
 
 # Archivos y directorios autogenerados por el sistema
 .system_generated
