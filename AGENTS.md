@@ -8,13 +8,14 @@
 ## 1. Identidad y Operación del Workspace
 
 - **Proyecto:** `pj-omarchy` (Área: Fork Personal de Omarchy).
-- **Máquina DEV:** `gracie` (Arch Linux / Omarchy con Hyprland, usuario `tanjiro`).
+- **Máquina DEV:** cualquiera (PC, PC en la nube o el box de Grok Bot), con Omarchy sobre Hyprland o niri. Lo propio de cada máquina vive fuera del repo, en `$HOME/.config/domina/reglas-locales.md`.
 - **El Trío de Agentes:**
   - `PM-pj-omarchy`: PM general. Roberto habla **únicamente con el PM**. Convierte requerimientos en specs y tickets `ready-for-agent` con el flujo de Matt Pocock.
   - `WK-pj-omarchy`: Worker. Lanzado por el PM (`invoke_subagent`) para implementar tickets en branches dedicadas con pruebas reales.
   - `RV-pj-omarchy`: Reviewer. Lanzado por el PM (`invoke_subagent`) para auditar el PR final antes de presentárselo a Roberto.
 - **Regla de oro de comunicación:** Voseo salvadoreño siempre («vos tenés», «podés», «decime», «fijate», «mirá»). Respuestas concisas, primero el resultado.
 - **Regla de merge:** El PM **solo mergea cuando Roberto da la orden explícita** sobre un PR con etiqueta `ready-to-merge`.
+- **Reglas de rol:** viven en este repo, en `.agents/reglas/` (`comun.md` + `pm.md`/`wk.md`/`rv.md`). Las leen igual agy, Cursor y Grok Bot. **Skills:** una sola copia en `.agents/skills/`.
 
 ---
 
@@ -41,8 +42,8 @@
 ## 4. Reglas Duras de Arquitectura (Inviolables)
 
 1. **La Matriz de Decisión manda:** Todo cambio en `fo-omarchy` debe clasificarse estrictamente en la fila correspondiente de [`rf-fork-docs/architecture/02-matriz-de-decision.md`](./rf-fork-docs/architecture/02-matriz-de-decision.md):
-   - Configs de usuario: `config/<app>/` → `~/.config/<app>/` (vía `omarchy-settings`).
-   - Webapps y accesos directos: `applications/*.desktop` → `~/.local/share/applications/` (vía `omarchy-settings`).
+   - Configs de usuario: `config/<app>/` → `$HOME/.config/<app>/` (vía `omarchy-settings`).
+   - Webapps y accesos directos: `applications/*.desktop` → `$HOME/.local/share/applications/` (vía `omarchy-settings`).
    - Binarios de sistema: `bin/omarchy-*` → `/usr/bin/` (vía `omarchy`).
    - Wrappers de terceros: `install/user/*.sh` siguiendo el patrón `omarchy-mise-install`.
    - Scripts de migración / provisioning: `migrations/<timestamp>.sh` (estrictamente idempotentes).
@@ -65,7 +66,7 @@
 └────────────────────────────────────────────────────────┘
           │                                   │
    [ Escenario DEV ]                   [ Escenario MÁQUINAS ]
- (Validación en gracie)              (Producción para la flota)
+ (Validación en DEV)                 (Producción para la flota)
           │                                   │
 • Editar código en fo-omarchy       • git commit & push a rama personal
 • omarchy dev pkg-test              • Action release-personal.yml en omarchy-pkgs
@@ -74,8 +75,8 @@
                                     • Máquinas corren omarchy update
 ```
 
-- **`omarchy dev pkg-test`** es exclusivo de desarrollo local en `gracie`. Deja la máquina en el canal `-dev`.
-- **`omarchy update`** es el canal estable para todas las máquinas de la flota (y para regresar `gracie` al canal oficial sombreado).
+- **`omarchy dev pkg-test`** es exclusivo de la máquina DEV. Deja la máquina en el canal `-dev`.
+- **`omarchy update`** es el canal estable para todas las máquinas de la flota (y para regresar la máquina DEV al canal oficial sombreado).
 
 ---
 
