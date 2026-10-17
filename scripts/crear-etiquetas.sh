@@ -42,8 +42,14 @@ else
   fi
   REPOS+=("$meta")
   # Repos hijos: las entradas "<dir>:<owner/repo>:<rama>" de clone-repos.sh
-  # Salta los archivados (no aceptan etiquetas nuevas).
+  # Salta los archivados: los de AGENTS.md §3 («Archivado e Inmutable») y los
+  # que GitHub marca como archivados.
+  ARCHIVADOS=(robert-flo/scratchpad robert-flo/omarchy-personal-archive-2026-09)
   while IFS= read -r repo; do
+    if printf '%s\n' "${ARCHIVADOS[@]}" | grep -qixF "$repo"; then
+      echo "--- $repo (archivado, se salta)"
+      continue
+    fi
     if [ "$(gh_t repo view "$repo" --json isArchived -q .isArchived 2>/dev/null)" = "true" ]; then
       echo "--- $repo (archivado, se salta)"
       continue
