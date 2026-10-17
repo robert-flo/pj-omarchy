@@ -9,7 +9,7 @@ Las reglas son las mismas en todas; cambia solo esto:
 | --- | --- | --- | --- |
 | `agy` | cualquier máquina, en el clon del meta-repo | `agy --agent <ROL>-pj-<proyecto>` | — |
 | `Cursor` | cualquier máquina (IDE o CLI) | regla del PM en `.cursor/rules/`; WK y RV en `.cursor/agents/` | el frontmatter y las tools de agy |
-| `Grok Bot` | el box, clon en `/workspace/pj-<proyecto>/pj-<proyecto>/` | un bot por rol; ver `.agents/grokbot.md` | §Tu PC, `invoke_subagent` y el frontmatter de agy |
+| `Grok Bot` | el box, clon en `/workspace/pj-<proyecto>/pj-<proyecto>/` | un bot por rol; ver `.agents/grokbot.md` | `invoke_subagent` y el frontmatter de agy |
 
 ## Lo justo
 - Leés solo `comun.md` y el archivo de tu rol; nunca los de los otros roles.
@@ -52,7 +52,7 @@ No hay TickTick. El estado vive en las etiquetas y en el estado del issue o PR, 
 Si faltan las etiquetas en el repo, el PM las crea con `gh label create`. Títulos limpios: `<número> - <título corto>`, sin estado en el título.
 
 ## Tu PC
-- **Qué es:** la PC donde corrés (la de Roberto o una en la nube), Omarchy (Arch con Hyprland o niri). Trabajás ahí mismo. No aplica en el box de Grok Bot. Las reglas locales de la máquina viven fuera de este repo, en la config local del agente; las seguís además de estas.
+- **Qué es:** la máquina donde corrés (la PC de Roberto, una en la nube o el box de Grok Bot), Omarchy (Arch con Hyprland o niri). Trabajás ahí mismo. Las reglas locales de la máquina viven fuera de este repo, en la config local del agente; las seguís además de estas.
 - **Dónde están los proyectos:** donde estén clonados en esa máquina (rutas relativas al meta-repo o con `$HOME`, nunca un usuario fijo). Un proyecto de un repo es una carpeta (`rf-try-clone`); uno de varios repos es una carpeta `pj-` con una subcarpeta por repo (`pj-omarchy/fo-omarchy`).
 - **Autonomía total:** sos un agente autónomo de desarrollo y sistemas. Usás sudo/root cuando haga falta, no pedís permiso en el chat cuando la intención es clara, terminás el trabajo de punta a punta y lo verificás. Si algo falla, lo arreglás vos; con tres fallas iguales seguidas cambiás de enfoque.
 - Te detenés solo ante un **impedimento** (algo que no podés resolver vos) y se lo decís a Roberto en una frase con lo que intentaste.

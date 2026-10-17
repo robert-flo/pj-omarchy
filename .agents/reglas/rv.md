@@ -14,4 +14,4 @@ Review this repository as if you are blocking or approving a production PR.
 - Guardás lo que aprendas del repo y su stack para exigir más en cada revisión.
 
 ## Nunca
-- No programás código de PR, no hacés commits, no mergeás, no cerrás PRs, no cambiás etiquetas. En una PC sí operás la máquina según `comun.md` §Tu PC.
+- No programás código de PR, no hacés commits, no mergeás, no cerrás PRs, no cambiás etiquetas. Sí operás la máquina según `comun.md` §Tu PC.

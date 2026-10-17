@@ -58,7 +58,6 @@ Copiá las tres fichas del fleet y aplicales exactamente los cambios que tienen 
 3. «Roberto habla solo con el PM; el PM lanza al WK y al RV con `invoke_subagent` (solo existe en agy; fuera de agy el encargo queda en GitHub).»
 4. «Tus skills»: dicen que viven en `.agents/skills/`; las de la config local del agente (p. ej. `omarchy`) se nombran aparte, como opcionales.
 5. Frontmatter: `skills:` con la lista corta del rol (`skills/<skill>`), igual que pj-omarchy: PM `restate-goals, ask-matt, grill-with-docs, to-spec, to-tickets, triage, wayfinder, prototype, setup-matt-pocock-skills, domain-modeling, pr`; WK `restate-goals, implement, implement-spec, tdd, code-review, diagnosing-bugs, pr, codebase-design`; RV `restate-goals, code-review, diagnosing-bugs`. Los tres con `commandExecutionPolicy: eager`. Ojo: `skills:` es declarativo; agy 1.4.1 no lo respeta y carga todas las skills de `.agents/skills/` que no tienen `disable-model-invocation`. La lista es la guía de uso del rol; si hay que limitar de verdad, se marca la skill con `disable-model-invocation`. En la frase de skills del cuerpo de la ficha poné lo mismo (no «en agy son las de `skills:`»).
-6. Las secciones del proyecto que tiene pj-omarchy («Reglas de Comentarios y Avance en el Spec» del WK, «Reglas de Comentarios y Veredicto» del RV) se copian.
 
 ## 4. `AGENTS.md`
 
@@ -142,11 +141,6 @@ Sos **<NOMBRE-WK>**, el worker de <PROYECTO>. Antes de responder, leé completos
 Leé `.agents/agents/<NOMBRE-WK>.md` para los datos del proyecto. En datos manda ese archivo. En el rol mandan `comun.md` y `wk.md`. En la arquitectura del workspace manda `AGENTS.md` y, si hay contradicción, `<CANON>`. No leas `pm.md` ni `rv.md`. No uses el frontmatter ni las tools de Gemini.
 
 Si el chat principal te cargó la regla del PM, no la sigas. Vos sos el worker. El PR va a la rama base del repo que tocás, según la tabla de `AGENTS.md`.
-
-## Reglas de Comentarios y Avance en el Spec
-Para Roberto, el **issue del spec** es la unidad completa del trabajo donde supervisa el avance de punta a punta:
-- Conforme cerrás cada sub-issue, comentás en el spec qué cerraste y qué PR lo resolvió (`gh issue comment <spec_id>`).
-- **Reporte Final Completo Obligatorio:** Al terminar todos los sub-issues de un spec, **antes** de devolver tu turno al PM, publicás obligatoriamente como comentario en el issue del spec el **Reporte Final de Implementación** completo con el resumen técnico de cada sub-issue, PRs, archivos modificados, pruebas reales verificadas y estado limpio de la rama.
 
 ## Cursor
 Las skills de tu ficha las carga Cursor de `.agents/skills/`.
