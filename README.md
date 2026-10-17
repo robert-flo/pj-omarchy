@@ -33,7 +33,7 @@ Antes de inicializar el workspace en una nueva máquina, asegurate de contar con
    # Si no está autenticado:
    gh auth login
    ```
-3. **Sistema Base:** Arch Linux / Omarchy (con `tanjiro` en `gracie` como entorno primario de desarrollo).
+3. **Sistema Base:** Arch Linux / Omarchy (con el usuario `gracie` en la máquina `gracie` como entorno primario de desarrollo).
 
 ---
 
@@ -74,15 +74,23 @@ cursor pj-omarchy.code-workspace
 
 ```
 pj-omarchy/
-├── .agents/                      # Definiciones del trío de agentes Antigravity
-│   └── agents/
-│       ├── PM-pj-omarchy.md      # Project Manager (Matt Pocock Flow)
-│       ├── WK-pj-omarchy.md      # Worker (implementación con pruebas reales)
-│       └── RV-pj-omarchy.md      # Reviewer (auditoría previa al merge)
-├── .cursor/                      # Reglas, prompts y skills para Cursor IDE
-│   ├── agents/                   # Prompts especializados para agentes
-│   ├── rules/                    # Reglas automáticas para Cursor
-│   └── skills/                   # Skills del flujo (code-review, diagnosing-bugs, etc.)
+├── .agents/                      # Fuente única del trío (agy, Cursor y Grok Bot)
+│   ├── agents/                   # Fichas del trío (frontmatter de agy + datos del proyecto)
+│   │   ├── PM-pj-omarchy.md      # Project Manager (Matt Pocock Flow)
+│   │   ├── WK-pj-omarchy.md      # Worker (implementación con pruebas reales)
+│   │   └── RV-pj-omarchy.md      # Reviewer (auditoría previa al merge)
+│   ├── reglas/                   # Reglas de rol: comun.md, pm.md, wk.md, rv.md
+│   ├── skills/                   # ÚNICA copia de las skills (ver skills-lock.json)
+│   └── grokbot.md                # Adaptador: cómo corre el trío en Grok Bot
+├── .claude/skills/               # Symlinks por skill a .agents/skills/ (scripts/enlazar-skills.sh)
+├── .cursor/                      # Cursor: regla del PM y subagentes WK/RV
+│   ├── agents/                   # wk-pj-omarchy.md, rv-pj-omarchy.md
+│   ├── rules/                    # pm-pj-omarchy.mdc y reglas siempre activas
+│   └── replicar-pm-en-otros-repos.md  # Receta para replicar este formato a otro proyecto
+├── scripts/
+│   ├── crear-etiquetas.sh        # Etiquetas de triage y colas (idempotente)
+│   └── enlazar-skills.sh         # Regenera .claude/skills/ (idempotente)
+├── skills-lock.json              # Origen y hash de cada skill (robert-flo/skills)
 ├── .gitignore                    # Exclusión estricta de sub-repos, worktrees y temporales
 ├── AGENTS.md                     # Guía maestra y memoria persistente del workspace
 ├── clone-repos.sh                # Script ejecutable de clonación e idempotencia
@@ -111,4 +119,5 @@ El desarrollo en este workspace opera bajo el modelo del Trío Antigravity (`PM`
 - El **PM** formaliza especificaciones y genera tickets `ready-for-agent`.
 - El **WK** (`WK-pj-omarchy`) implementa cada sub-issue en un worktree aislado, verifica criterios con pruebas reales y actualiza el issue del spec.
 - El **RV** (`RV-pj-omarchy`) audita el PR final antes de someterlo a la aprobación de Roberto.
-- Solo Roberto autoriza el merge definitivo a la rama principal.
+- Solo Roberto ordena el merge definitivo a la rama principal (squash).
+- El traspaso entre roles y plataformas (agy, Cursor, Grok Bot) va por GitHub: etiquetas-cola y comentario de relevo. Ver `AGENTS.md` §7. Para correr el trío en Grok Bot, ver `.agents/grokbot.md`.

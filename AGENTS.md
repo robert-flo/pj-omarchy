@@ -8,13 +8,14 @@
 ## 1. Identidad y Operación del Workspace
 
 - **Proyecto:** `pj-omarchy` (Área: Fork Personal de Omarchy).
-- **Máquina DEV:** `gracie` (Arch Linux / Omarchy con Hyprland, usuario `tanjiro`).
+- **Máquina DEV:** `gracie` (Arch Linux / Omarchy con Hyprland, usuario `gracie`).
 - **El Trío de Agentes:**
   - `PM-pj-omarchy`: PM general. Roberto habla **únicamente con el PM**. Convierte requerimientos en specs y tickets `ready-for-agent` con el flujo de Matt Pocock.
   - `WK-pj-omarchy`: Worker. Lanzado por el PM (`invoke_subagent`) para implementar tickets en branches dedicadas con pruebas reales.
   - `RV-pj-omarchy`: Reviewer. Lanzado por el PM (`invoke_subagent`) para auditar el PR final antes de presentárselo a Roberto.
 - **Regla de oro de comunicación:** Voseo salvadoreño siempre («vos tenés», «podés», «decime», «fijate», «mirá»). Respuestas concisas, primero el resultado.
-- **Regla de merge:** El PM **solo mergea cuando Roberto da la orden explícita** sobre un PR con etiqueta `ready-to-merge`.
+- **Regla de merge:** **Solo Roberto ordena el merge** a la rama por defecto, siempre squash. El PM ejecuta `gh pr merge --squash --delete-branch` únicamente con esa orden explícita y sobre un PR con `ready-to-merge`. Nadie más mergea a la rama por defecto.
+- **Reglas de rol:** viven en este repo, en `.agents/reglas/` (`comun.md` + `pm.md`/`wk.md`/`rv.md`). Las leen igual agy, Cursor y Grok Bot. **Skills:** una sola copia en `.agents/skills/`.
 
 ---
 
@@ -87,4 +88,54 @@
 4. **Tickets (`to-tickets`):** Partir el spec en sub-issues con etiqueta `ready-for-agent`.
 5. **Worker (`WK-pj-omarchy`):** Lanzar como subagente para programar cada ticket en la rama del spec.
 6. **Reviewer (`RV-pj-omarchy`):** Al completar todos los sub-issues, abrir PR de la rama del spec a `personal` y lanzar RV como subagente para auditar.
-7. **Merge:** Solo cuando el RV emite `APRUEBO` y Roberto autoriza el merge, ejecutar `gh pr merge --squash --delete-branch`.
+7. **Merge:** Solo cuando el RV emite `APRUEBO @<sha>` sobre el head actual del PR y Roberto ordena el merge, ejecutar `gh pr merge --squash --delete-branch`.
+
+> **Veredicto del RV:** las únicas palabras son `APRUEBO` y `BLOQUEO`, en la primera línea del comentario y con el SHA corto del head revisado: `APRUEBO @abc1234` / `BLOQUEO @abc1234`. Es lo que ya escribe el RV de la flota en la práctica (RV-pj-fleet); se unificó acá el 2026-10-17. Un commit nuevo en el PR invalida el veredicto.
+
+---
+
+## 7. Relevo y Colas (todas las plataformas)
+
+GitHub es la única fuente de verdad y el único canal entre roles y plataformas (agy en gracie o en la VM, Cursor, Grok Bot). Linear (team **ROB**) está sincronizado con los GitHub issues, pero no se cambia estado ahí: lo que vale es GitHub.
+
+### Colas = etiquetas
+
+| Etiqueta | Va en | Cola de | La pone | La quita |
+| :--- | :--- | :--- | :--- | :--- |
+| `ready-for-agent` | issue (spec, sub-issue o trivial) | WK | PM | PM, al cerrarse el issue |
+| `listo-para-review` | PR final (o PR de un trivial) | RV | PM al abrir el PR final; WK al sacar de draft un trivial | PM, después del veredicto |
+| `ready-to-merge` | PR final | Roberto | PM, tras `APRUEBO @<sha>` | PM, tras el merge o el rechazo |
+
+Si faltan en un repo: `scripts/crear-etiquetas.sh` (idempotente; sin argumentos cubre el meta-repo y los repos de `clone-repos.sh`; `DRY_RUN=1` para ver sin tocar).
+
+**Al arrancar, cada rol revisa su cola** una vez, en los repos de su ficha:
+
+```bash
+# WK
+gh issue list -R robert-flo/<repo> --label ready-for-agent --state open
+# RV
+gh pr list -R robert-flo/<repo> --label listo-para-review --state open
+# PM (y para avisarle a Roberto)
+gh pr list -R robert-flo/<repo> --label ready-to-merge --state open
+gh issue list -R robert-flo/<repo> --label needs-triage --state open
+```
+
+y lee el último comentario de relevo del issue o PR antes de tocarlo.
+
+### Comentario de relevo
+
+Cada rol, **al terminar o al ser interrumpido** (cuota, corte, fin de sesión, cambio de plataforma), deja este comentario en el issue del spec (o del trivial); si el trabajo vive en un PR, también en el PR. Formato fijo, sin campos de más ni de menos:
+
+```markdown
+### Relevo · <ROL>-<proyecto>
+- **Rol:** PM | WK | RV
+- **Plataforma:** agy gracie | agy vm | Cursor | Grok Bot
+- **Qué hice:** <1–3 líneas, con links>
+- **Estado:** terminado | interrumpido | bloqueado
+- **Siguiente:** <quién (rol o Roberto) y qué tiene que hacer>
+- **Rama/PR:** `<rama>` @<sha corto> · #<PR> (o «sin rama»)
+- **Bloqueos:** ninguno | <qué falta y de quién>
+```
+
+Antes de cortar, **push del WIP**: si tenés rama propia con cambios, `git add -A && git commit -m "wip: <qué>" && git push` a esa rama (nunca a la rama por defecto ni a la del spec, nunca `--force`). El SHA del relevo es el de ese push. El RV y el PM no tienen WIP de código: su relevo dice hasta dónde llegaron.
+
