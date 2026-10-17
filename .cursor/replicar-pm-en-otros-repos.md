@@ -13,8 +13,7 @@ Un meta-repo por proyecto, una sola fuente de verdad, un solo flujo:
 | Skills (única copia) | `.agents/skills/` + `skills-lock.json` | verbatim |
 | Cursor | `.cursor/rules/<pm>.mdc`, `.cursor/agents/{wk,rv}-<proyecto>.md`, `.cursor/rules/no-cursor-coauthor.mdc` | plantillas abajo (paso 5) |
 | Grok Bot | `.agents/grokbot.md` | verbatim, cambiando `pj-omarchy` por el proyecto |
-| Relevo y colas | `AGENTS.md` §Relevo y Colas | verbatim |
-| Scripts | `scripts/crear-etiquetas.sh`, `clone-repos.sh` | el primero verbatim; `clone-repos.sh` con la lista de repos del proyecto |
+| Scripts | `clone-repos.sh` | con la lista de repos del proyecto |
 
 No hay `.cursor/skills/`: Cursor carga `.agents/skills/` directo (docs de Cursor, «Agent Skills»), y una copia o symlink ahí duplicaría las skills. Nada apunta a la carpeta global de reglas de agy en `$HOME/.gemini/config/`: las reglas viven en el repo.
 
@@ -40,10 +39,9 @@ Desde un clon de pj-omarchy actualizado (`main`):
 
 ```bash
 O=/ruta/a/pj-omarchy; N=/ruta/al/meta-repo-nuevo
-mkdir -p "$N/.agents" "$N/scripts" "$N/.cursor/rules"
+mkdir -p "$N/.agents" "$N/.cursor/rules"
 cp -a "$O/.agents/reglas" "$O/.agents/skills" "$N/.agents/"
 cp -a "$O/skills-lock.json" "$N/"
-cp -a "$O/scripts/crear-etiquetas.sh" "$N/scripts/"
 cp -a "$O/.cursor/rules/no-cursor-coauthor.mdc" "$N/.cursor/rules/"
 sed "s/pj-omarchy/<proyecto>/g" "$O/.agents/grokbot.md" > "$N/.agents/grokbot.md"
 cp -a "$O/clone-repos.sh" "$N/"   # y editás REPOS=( "<dir>:<owner/repo>:<rama>" … )
@@ -55,20 +53,19 @@ También `.gitignore` (con las carpetas de los repos hijos y `.wt-*`) y un `<pro
 
 Copiá las tres fichas del fleet y aplicales exactamente los cambios que tienen las de pj-omarchy:
 
-1. «Antes de responder, leé completos, en este orden, `.agents/reglas/comun.md` y `.agents/reglas/<rol>.md` (en la raíz de este meta-repo, al lado de esta ficha), y seguilos al pie de la letra. Para el relevo y las colas, `AGENTS.md` §Relevo.»
+1. «Antes de responder, leé completos, en este orden, `.agents/reglas/comun.md` y `.agents/reglas/<rol>.md` (en la raíz de este meta-repo, al lado de esta ficha), y seguilos al pie de la letra.»
 2. En «Repos del proyecto», primero el meta-repo: «`<proyecto>` (este meta-repo) → `robert-flo/<proyecto>`, rama base `main` — trío, reglas, skills y scripts del proyecto».
-3. «Roberto habla solo con el PM; en agy el PM lanza al WK y al RV con `invoke_subagent`; en las demás plataformas el traspaso va por las colas de GitHub (`AGENTS.md` §Relevo).»
+3. «Roberto habla solo con el PM; el PM lanza al WK y al RV con `invoke_subagent` (solo existe en agy; fuera de agy el encargo queda en GitHub).»
 4. «Tus skills»: dicen que viven en `.agents/skills/`; las de la config local del agente (p. ej. `omarchy`) se nombran aparte, como opcionales.
 5. Frontmatter: `skills:` con la lista corta del rol (`skills/<skill>`), igual que pj-omarchy: PM `restate-goals, ask-matt, grill-with-docs, to-spec, to-tickets, triage, wayfinder, prototype, setup-matt-pocock-skills, domain-modeling, pr`; WK `restate-goals, implement, implement-spec, tdd, code-review, diagnosing-bugs, pr, codebase-design`; RV `restate-goals, code-review, diagnosing-bugs`. Los tres con `commandExecutionPolicy: eager`. Ojo: `skills:` es declarativo; agy 1.4.1 no lo respeta y carga todas las skills de `.agents/skills/` que no tienen `disable-model-invocation`. La lista es la guía de uso del rol; si hay que limitar de verdad, se marca la skill con `disable-model-invocation`. En la frase de skills del cuerpo de la ficha poné lo mismo (no «en agy son las de `skills:`»).
-6. Las secciones del proyecto que tiene pj-omarchy («Reglas de Comentarios y Avance en el Spec» del WK, «Reglas de Comentarios y Veredicto» del RV con `APRUEBO @<sha>`/`BLOQUEO @<sha>`) se copian.
+6. Las secciones del proyecto que tiene pj-omarchy («Reglas de Comentarios y Avance en el Spec» del WK, «Reglas de Comentarios y Veredicto» del RV) se copian.
 
 ## 4. `AGENTS.md`
 
 Lo propio del proyecto (identidad, mapa de repos, jerarquía documental, reglas duras, escenarios), más, copiado de pj-omarchy:
 
-- En «Identidad»: la **regla de merge** (solo Roberto ordena el merge, squash) y la línea de **reglas de rol y skills**.
-- En el flujo del PM: el paso de merge con `APRUEBO @<sha>` y la nota del **veredicto**.
-- La sección **Relevo y Colas** entera (Linear team ROB sincronizado; GitHub manda).
+- En «Identidad»: la **regla de merge** y la línea de **reglas de rol y skills**.
+- En el flujo del PM: el paso de merge.
 
 Nunca la identidad del PM en `AGENTS.md`: lo leen los tres roles.
 
@@ -114,7 +111,7 @@ Leé completos, en este orden, si todavía no los leíste en esta conversación:
 2. `.agents/reglas/pm.md`
 3. `.agents/agents/<NOMBRE>.md` para los datos del proyecto
 
-En datos manda `.agents/agents/<NOMBRE>.md`. En el rol del PM mandan `comun.md` y `pm.md`. En el relevo, las colas y la arquitectura de este workspace manda `AGENTS.md` y, si hay contradicción, `<CANON>`. No uses el frontmatter ni las tools de Gemini de ese archivo.
+En datos manda `.agents/agents/<NOMBRE>.md`. En el rol del PM mandan `comun.md` y `pm.md`. En la arquitectura de este workspace manda `AGENTS.md` y, si hay contradicción, `<CANON>`. No uses el frontmatter ni las tools de Gemini de ese archivo.
 
 El saludo nombra `<RAMA>` porque ahí van los PR finales de los forks. Si el cambio es de otro repo del workspace, el PR va a la rama base de ese repo según la tabla de `AGENTS.md`.
 
@@ -125,7 +122,7 @@ Esta identidad es del chat con Roberto. Si estás corriendo como `<slug-wk>` o `
 - Lanzá al WK como subagente `<slug-wk>` con el número de issue y la rama.
 - Lanzá al RV como subagente `<slug-rv>` con el número de PR.
 - El encargo va en el prompt. Ellos leen `.agents/reglas/comun.md` y el archivo de su rol (`wk.md` o `rv.md`), nunca `pm.md`.
-- Plataforma en el relevo: `Cursor`. Las skills las carga Cursor de `.agents/skills/`.
+- Las skills las carga Cursor de `.agents/skills/`.
 ```
 
 ### Subagente WK
@@ -142,7 +139,7 @@ description: <description del WK en Gemini>. El PM te lanza para implementar un 
 
 Sos **<NOMBRE-WK>**, el worker de <PROYECTO>. Antes de responder, leé completos, en este orden, `.agents/reglas/comun.md` y `.agents/reglas/wk.md`, y seguilos al pie de la letra.
 
-Leé `.agents/agents/<NOMBRE-WK>.md` para los datos del proyecto. En datos manda ese archivo. En el rol mandan `comun.md` y `wk.md`. En el relevo, las colas y la arquitectura del workspace manda `AGENTS.md` y, si hay contradicción, `<CANON>`. No leas `pm.md` ni `rv.md`. No uses el frontmatter ni las tools de Gemini.
+Leé `.agents/agents/<NOMBRE-WK>.md` para los datos del proyecto. En datos manda ese archivo. En el rol mandan `comun.md` y `wk.md`. En la arquitectura del workspace manda `AGENTS.md` y, si hay contradicción, `<CANON>`. No leas `pm.md` ni `rv.md`. No uses el frontmatter ni las tools de Gemini.
 
 Si el chat principal te cargó la regla del PM, no la sigas. Vos sos el worker. El PR va a la rama base del repo que tocás, según la tabla de `AGENTS.md`.
 
@@ -152,7 +149,7 @@ Para Roberto, el **issue del spec** es la unidad completa del trabajo donde supe
 - **Reporte Final Completo Obligatorio:** Al terminar todos los sub-issues de un spec, **antes** de devolver tu turno al PM, publicás obligatoriamente como comentario en el issue del spec el **Reporte Final de Implementación** completo con el resumen técnico de cada sub-issue, PRs, archivos modificados, pruebas reales verificadas y estado limpio de la rama.
 
 ## Cursor
-Plataforma en el relevo: `Cursor`. Las skills de tu ficha las carga Cursor de `.agents/skills/`.
+Las skills de tu ficha las carga Cursor de `.agents/skills/`.
 ```
 
 ### Subagente RV
@@ -161,16 +158,12 @@ Se replica, no se resume: `name: <slug-rv>`, `description` verbatim de la ficha 
 
 ```markdown
 ## Cursor
-No uses el frontmatter ni las tools de agy. Donde dice `invoke_subagent`, el PM ya te lanzó. No leas `pm.md` ni `wk.md`. Si este chat te cargó la regla del PM, no la sigas: vos sos el revisor. Las skills de arriba las carga Cursor de `.agents/skills/` (la única copia), y las seguís igual. Plataforma en el relevo: `Cursor`.
+No uses el frontmatter ni las tools de agy. Donde dice `invoke_subagent`, el PM ya te lanzó. No leas `pm.md` ni `wk.md`. Si este chat te cargó la regla del PM, no la sigas: vos sos el revisor. Las skills de arriba las carga Cursor de `.agents/skills/` (la única copia), y las seguís igual.
 ```
 
 El ejemplo es `.cursor/agents/rv-pj-omarchy.md`.
 
-## 6. Etiquetas
-
-`DRY_RUN=1 scripts/crear-etiquetas.sh` para ver qué falta. En el meta-repo se crean sin más (`scripts/crear-etiquetas.sh robert-flo/<proyecto>`); en los repos hijos, con el OK de Roberto (`scripts/crear-etiquetas.sh` sin argumentos). Es idempotente: no toca las que ya existen.
-
-## 7. PR y verificación
+## 6. PR y verificación
 
 Un PR al meta-repo nuevo, en rama propia, sin `push --force`, con el body de la skill `pr`. Antes de abrirlo, todo esto tiene que ser cierto:
 
@@ -178,12 +171,11 @@ Un PR al meta-repo nuevo, en rama propia, sin `push --force`, con el body de la 
 2. `.agents/reglas/` es idéntica a la de pj-omarchy (`diff -r`).
 3. `.cursor/skills/` no existe (Cursor y agy leen `.agents/skills/` directo).
 4. `skills-lock.json` lista exactamente las carpetas de `.agents/skills/`.
-5. `bash -n` pasa en `clone-repos.sh` y en `scripts/*.sh`.
+5. `bash -n` pasa en `clone-repos.sh`.
 6. Existen las tres fichas, la regla del PM (`alwaysApply: true`) y los dos subagentes de Cursor con `name` = slug.
 7. El cuerpo de `.cursor/agents/<slug-rv>.md` es la ficha RV verbatim más la sección `Cursor`.
-8. `AGENTS.md` tiene la regla de merge, la nota del veredicto y la sección Relevo y Colas.
+8. `AGENTS.md` tiene la regla de merge.
 9. `.agents/grokbot.md` nombra la ruta `/workspace/<proyecto>/<proyecto>/`.
-10. Las etiquetas del meta-repo existen (paso 6).
 
 ## Verificación del chat (Cursor)
 

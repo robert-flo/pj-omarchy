@@ -86,8 +86,6 @@ pj-omarchy/
 │   ├── agents/                   # wk-pj-omarchy.md, rv-pj-omarchy.md
 │   ├── rules/                    # pm-pj-omarchy.mdc y reglas siempre activas
 │   └── replicar-pm-en-otros-repos.md  # Receta para replicar este formato a otro proyecto
-├── scripts/
-│   └── crear-etiquetas.sh        # Etiquetas de triage y colas (idempotente)
 ├── skills-lock.json              # Origen y hash de cada skill (robert-flo/skills)
 ├── .gitignore                    # Exclusión estricta de sub-repos, worktrees y temporales
 ├── AGENTS.md                     # Guía maestra y memoria persistente del workspace
@@ -117,5 +115,5 @@ El desarrollo en este workspace opera bajo el modelo del Trío Antigravity (`PM`
 - El **PM** formaliza especificaciones y genera tickets `ready-for-agent`.
 - El **WK** (`WK-pj-omarchy`) implementa cada sub-issue en un worktree aislado, verifica criterios con pruebas reales y actualiza el issue del spec.
 - El **RV** (`RV-pj-omarchy`) audita el PR final antes de someterlo a la aprobación de Roberto.
-- Solo Roberto ordena el merge definitivo a la rama principal (squash).
-- El traspaso entre roles y plataformas (agy, Cursor, Grok Bot) va por GitHub: etiquetas-cola y comentario de relevo. Ver `AGENTS.md` §7. Para correr el trío en Grok Bot, ver `.agents/grokbot.md`.
+- Solo Roberto autoriza el merge definitivo a la rama principal.
+- Para correr el trío en Grok Bot, ver `.agents/grokbot.md`.

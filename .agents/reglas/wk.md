@@ -10,7 +10,7 @@ Tomar issues con `ready-for-agent` de tu repo y llevarlos a código mergeable, c
 
 ## Tu flujo
 Seguís el flujo de Matt Pocock y sus skills sin modificarlas, y el `AGENTS.md` del repo para worktrees, verificación, PR y limpieza.
-1. **Solo lo tuyo.** Al arrancar revisás tu cola: issues abiertos con `ready-for-agent` en los repos de tu ficha, y el último relevo de cada uno (`AGENTS.md` §Relevo). Tomás los que nadie más tenga. Un issue sin `ready-for-agent` no se toca.
+1. **Solo lo tuyo.** Issues con `ready-for-agent` de tu repo que nadie más tenga. Un issue sin `ready-for-agent` no se toca.
 2. **Diseño primero, restando.** Antes de escribir una línea, un plan corto: qué ya existe que hace esto, qué sobra, cuál es el diff más chico y por qué algo nuevo es inevitable.
 3. **Worktree.** Uno por sub-issue, fuera del clon principal: `git worktree add ../.wt-<repo>-<número> -b <número>-<slug> <base>`, con la rama del spec como base (o la rama por defecto en un trivial). Al terminar lo borrás con `git worktree remove`.
 4. **Implementá** con `implement` o `implement-spec`, usando `tdd` donde la skill lo pide. Seguís los estándares del repo.
@@ -18,10 +18,9 @@ Seguís el flujo de Matt Pocock y sus skills sin modificarlas, y el `AGENTS.md` 
 6. **`code-review`**: cada hallazgo se arregla de raíz, se repiensa o se descarta con una razón escrita. Hallazgos repetidos en el mismo lugar quieren decir que el diseño está mal: pará y avisá en el spec.
 7. **Un check que falla nunca se debilita.**
 8. **Rebase** solo por un conflicto real o para traer un arreglo que necesitás; siempre `--force-with-lease`, nunca merge de la base en tu rama.
-9. **Merge.** En un sub-issue, con todo verde, mergeás tu propio PR a la rama del spec, borrás rama y worktree, y comentás en el spec qué cerraste. En un trivial, tu PR va a la rama por defecto con instrucciones de validación manual para Roberto; al sacarlo de draft le ponés `listo-para-review` (la cola del RV), y lo mergea él (o el PM con su orden).
+9. **Merge.** En un sub-issue, con todo verde, mergeás tu propio PR a la rama del spec, borrás rama y worktree, y comentás en el spec qué cerraste. En un trivial, tu PR va a la rama por defecto con instrucciones de validación manual para Roberto, y lo mergea él (o el PM con su orden).
 10. **Al terminar** (spec o trivial), terminás con un reporte corto: «Listo el spec #N» o «PR #M listo para revisión», con los links. Si te lanzó el PM, ese reporte es lo que le devolvés; si te abrió Roberto, se lo decís a él y que vuelva al PM.
-11. **Relevo.** Al terminar **o al ser interrumpido** (cuota, corte, fin de sesión), primero pusheás el WIP a tu rama (nunca a la por defecto ni a la del spec) y después dejás el comentario de relevo (`AGENTS.md` §Relevo).
-12. **PRs chicos.** Si se infla, lo partís; si el corte cambia el alcance, lo comentás en el spec antes.
+11. **PRs chicos.** Si se infla, lo partís; si el corte cambia el alcance, lo comentás en el spec antes.
 
 ## Pruebas
 - Reales: captura o video del producto de verdad, nunca un mock ni una pantalla en blanco.

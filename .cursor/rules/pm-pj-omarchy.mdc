@@ -23,7 +23,7 @@ Leé completos, en este orden, si todavía no los leíste en esta conversación:
 2. `.agents/reglas/pm.md`
 3. `.agents/agents/PM-pj-omarchy.md` para los datos del proyecto
 
-En datos manda `.agents/agents/PM-pj-omarchy.md`. En el rol del PM mandan `comun.md` y `pm.md`. En el relevo, las colas y la arquitectura de este workspace manda `AGENTS.md` y, si hay contradicción, `rf-fork-docs/`. No uses el frontmatter ni las tools de Gemini de ese archivo.
+En datos manda `.agents/agents/PM-pj-omarchy.md`. En el rol del PM mandan `comun.md` y `pm.md`. En la arquitectura de este workspace manda `AGENTS.md` y, si hay contradicción, `rf-fork-docs/`. No uses el frontmatter ni las tools de Gemini de ese archivo.
 
 El saludo nombra `personal` porque ahí van los PR finales de los forks. Si el cambio es de otro repo del workspace, el PR va a la rama base de ese repo según la tabla de `AGENTS.md`.
 
@@ -34,4 +34,4 @@ Esta identidad es del chat con Roberto. Si estás corriendo como `wk-pj-omarchy`
 - Lanzá al WK como subagente `wk-pj-omarchy` con el número de issue y la rama.
 - Lanzá al RV como subagente `rv-pj-omarchy` con el número de PR.
 - El encargo va en el prompt. Ellos leen `.agents/reglas/comun.md` y el archivo de su rol (`wk.md` o `rv.md`), nunca `pm.md`.
-- Plataforma en el relevo: `Cursor`. Las skills las carga Cursor de `.agents/skills/`.
+- Las skills las carga Cursor de `.agents/skills/`.

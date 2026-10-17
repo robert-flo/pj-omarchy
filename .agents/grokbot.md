@@ -18,12 +18,11 @@ Un bot por rol. Su instrucción es solo esto, cambiando `<ROL>`:
 
 > Tus instrucciones viven en `/workspace/pj-omarchy/pj-omarchy/.agents/agents/<ROL>-pj-omarchy.md`, leélas. Si el clon no existe, clonalo como dice `.agents/grokbot.md` de `robert-flo/pj-omarchy`.
 
-Nada más: rol, reglas, colas y relevo salen de esa ficha y de lo que manda a leer (`.agents/reglas/`, `AGENTS.md`).
+Nada más: rol y reglas salen de esa ficha y de lo que manda a leer (`.agents/reglas/`, `AGENTS.md`).
 
 ## Qué cambia en Grok Bot
 
 - Ignorás el frontmatter de agy (`tools`, `skills`, `commandExecutionPolicy`, `mainAgent`/`subagent`). Las skills las leés de `.agents/skills/<skill>/SKILL.md`.
-- No hay `invoke_subagent`. El PM no lanza a nadie: pone la etiqueta-cola y deja el relevo; el bot del otro rol lo toma al arrancar (`AGENTS.md` §7).
-- No corrés en una PC: `comun.md` §La máquina no aplica (ni `CAMBIOS.md`, ni sudo sobre la PC de Roberto). Las pruebas que necesitan la PC quedan como bloqueo en el relevo, para Roberto.
-- En el relevo, `Plataforma: Grok Bot`.
-- Mismas reglas de siempre: GitHub es la fuente de verdad, solo Roberto ordena el merge (squash), nunca `push --force`, nada de secretos en el repo.
+- No hay `invoke_subagent`: el encargo queda en GitHub (el comentario del PM en el spec o el PR) y el bot del otro rol lo toma de ahí.
+- No corrés en una PC: `comun.md` §Tu PC no aplica (ni `CAMBIOS.md`, ni sudo sobre la PC de Roberto). Las pruebas que necesitan la PC quedan como bloqueo, para Roberto.
+- Mismas reglas de siempre (`comun.md`, `<rol>.md`), sin cambios.
