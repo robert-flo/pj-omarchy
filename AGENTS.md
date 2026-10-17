@@ -8,7 +8,7 @@
 ## 1. Identidad y Operación del Workspace
 
 - **Proyecto:** `pj-omarchy` (Área: Fork Personal de Omarchy).
-- **Máquina DEV:** `gracie` (Arch Linux / Omarchy con Hyprland, usuario `gracie`).
+- **Máquina DEV:** cualquiera (PC, PC en la nube o el box de Grok Bot), con Omarchy sobre Hyprland o niri. Lo propio de cada máquina vive fuera del repo, en la config local del agente.
 - **El Trío de Agentes:**
   - `PM-pj-omarchy`: PM general. Roberto habla **únicamente con el PM**. Convierte requerimientos en specs y tickets `ready-for-agent` con el flujo de Matt Pocock.
   - `WK-pj-omarchy`: Worker. Lanzado por el PM (`invoke_subagent`) para implementar tickets en branches dedicadas con pruebas reales.
@@ -42,8 +42,8 @@
 ## 4. Reglas Duras de Arquitectura (Inviolables)
 
 1. **La Matriz de Decisión manda:** Todo cambio en `fo-omarchy` debe clasificarse estrictamente en la fila correspondiente de [`rf-fork-docs/architecture/02-matriz-de-decision.md`](./rf-fork-docs/architecture/02-matriz-de-decision.md):
-   - Configs de usuario: `config/<app>/` → `~/.config/<app>/` (vía `omarchy-settings`).
-   - Webapps y accesos directos: `applications/*.desktop` → `~/.local/share/applications/` (vía `omarchy-settings`).
+   - Configs de usuario: `config/<app>/` → `$HOME/.config/<app>/` (vía `omarchy-settings`).
+   - Webapps y accesos directos: `applications/*.desktop` → `$HOME/.local/share/applications/` (vía `omarchy-settings`).
    - Binarios de sistema: `bin/omarchy-*` → `/usr/bin/` (vía `omarchy`).
    - Wrappers de terceros: `install/user/*.sh` siguiendo el patrón `omarchy-mise-install`.
    - Scripts de migración / provisioning: `migrations/<timestamp>.sh` (estrictamente idempotentes).
@@ -66,7 +66,7 @@
 └────────────────────────────────────────────────────────┘
           │                                   │
    [ Escenario DEV ]                   [ Escenario MÁQUINAS ]
- (Validación en gracie)              (Producción para la flota)
+ (Validación en DEV)                 (Producción para la flota)
           │                                   │
 • Editar código en fo-omarchy       • git commit & push a rama personal
 • omarchy dev pkg-test              • Action release-personal.yml en omarchy-pkgs
@@ -75,8 +75,8 @@
                                     • Máquinas corren omarchy update
 ```
 
-- **`omarchy dev pkg-test`** es exclusivo de desarrollo local en `gracie`. Deja la máquina en el canal `-dev`.
-- **`omarchy update`** es el canal estable para todas las máquinas de la flota (y para regresar `gracie` al canal oficial sombreado).
+- **`omarchy dev pkg-test`** es exclusivo de la máquina DEV. Deja la máquina en el canal `-dev`.
+- **`omarchy update`** es el canal estable para todas las máquinas de la flota (y para regresar la máquina DEV al canal oficial sombreado).
 
 ---
 
@@ -96,7 +96,7 @@
 
 ## 7. Relevo y Colas (todas las plataformas)
 
-GitHub es la única fuente de verdad y el único canal entre roles y plataformas (agy en gracie o en la VM, Cursor, Grok Bot). Linear (team **ROB**) está sincronizado con los GitHub issues, pero no se cambia estado ahí: lo que vale es GitHub.
+GitHub es la única fuente de verdad y el único canal entre roles y plataformas (agy, Cursor o Grok Bot, en cualquier máquina). Linear (team **ROB**) está sincronizado con los GitHub issues, pero no se cambia estado ahí: lo que vale es GitHub.
 
 ### Colas = etiquetas
 
@@ -129,7 +129,7 @@ Cada rol, **al terminar o al ser interrumpido** (cuota, corte, fin de sesión, c
 ```markdown
 ### Relevo · <ROL>-<proyecto>
 - **Rol:** PM | WK | RV
-- **Plataforma:** agy gracie | agy vm | Cursor | Grok Bot
+- **Plataforma:** agy | Cursor | Grok Bot
 - **Qué hice:** <1–3 líneas, con links>
 - **Estado:** terminado | interrumpido | bloqueado
 - **Siguiente:** <quién (rol o Roberto) y qué tiene que hacer>
@@ -137,5 +137,5 @@ Cada rol, **al terminar o al ser interrumpido** (cuota, corte, fin de sesión, c
 - **Bloqueos:** ninguno | <qué falta y de quién>
 ```
 
-Antes de cortar, **push del WIP**: si tenés rama propia con cambios, `git add -A && git commit -m "wip: <qué>" && git push` a esa rama (nunca a la rama por defecto ni a la del spec, nunca `--force`). El SHA del relevo es el de ese push. El RV y el PM no tienen WIP de código: su relevo dice hasta dónde llegaron.
+Antes de cortar, **push del WIP**: si tenés rama propia con cambios, `git add <rutas que cambiaste> && git commit -m "<tipo>(<alcance>): <qué>" && git push` (rutas explícitas, nunca `git add -A`; el tipo sigue la convención del historial) a esa rama (nunca a la rama por defecto ni a la del spec, nunca `--force`). El SHA del relevo es el de ese push. El RV y el PM no tienen WIP de código: su relevo dice hasta dónde llegaron.
 

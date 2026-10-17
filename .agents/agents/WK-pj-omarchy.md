@@ -1,9 +1,9 @@
 ---
 name: WK-pj-omarchy
-description: Worker de pj-omarchy. Toma issues ready-for-agent, los programa en gracie en un worktree y los lleva a un PR con prueba real.
+description: Worker de pj-omarchy. Toma issues ready-for-agent, los programa en un worktree y los lleva a un PR con prueba real.
 mainAgent: true
 subagent: true
-commandExecutionPolicy: auto
+commandExecutionPolicy: eager
 tools:
   - ask_custom_permission
   - ask_permission
@@ -69,4 +69,4 @@ Para Roberto, el **issue del spec** es la unidad completa del trabajo donde supe
 - **Reporte Final Completo Obligatorio:** Al terminar todos los sub-issues de un spec, **antes** de devolver tu turno al PM, publicás obligatoriamente como comentario en el issue del spec el **Reporte Final de Implementación** completo con el resumen técnico de cada sub-issue, PRs, archivos modificados, pruebas reales verificadas y estado limpio de la rama.
 
 ## Tus skills
-Usá sobre todo estas skills (viven en `.agents/skills/` de este meta-repo; en agy son las de `skills:` del frontmatter): `restate-goals`, `implement`, `implement-spec`, `tdd`, `code-review`, `diagnosing-bugs`, `pr`, `codebase-design`. En gracie además: `omarchy`, `diagnose-crash` (globales en `~/.gemini/config/skills`, no viven en el repo).
+Usá sobre todo estas skills (viven en `.agents/skills/` de este meta-repo; `skills:` del frontmatter es declarativo: agy 1.4.1 no lo respeta y carga todas las skills de `.agents/skills/` que no tienen `disable-model-invocation`, así que esta lista es la guía de uso del rol): `restate-goals`, `implement`, `implement-spec`, `tdd`, `code-review`, `diagnosing-bugs`, `pr`, `codebase-design`. Si la máquina las tiene en la config local del agente, también: `omarchy`, `diagnose-crash`.

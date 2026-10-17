@@ -33,7 +33,7 @@ Antes de inicializar el workspace en una nueva máquina, asegurate de contar con
    # Si no está autenticado:
    gh auth login
    ```
-3. **Sistema Base:** Arch Linux / Omarchy (con el usuario `gracie` en la máquina `gracie` como entorno primario de desarrollo).
+3. **Sistema Base:** Arch Linux / Omarchy, con Hyprland o niri, en cualquier máquina y usuario. Lo propio de cada máquina vive fuera del repo.
 
 ---
 
@@ -42,8 +42,8 @@ Antes de inicializar el workspace en una nueva máquina, asegurate de contar con
 ### Paso 1: Clonar el Meta-Repositorio
 
 ```bash
-git clone git@github.com:robert-flo/pj-omarchy.git ~/Work/tries/pj-omarchy
-cd ~/Work/tries/pj-omarchy
+git clone git@github.com:robert-flo/pj-omarchy.git
+cd pj-omarchy
 ```
 
 ### Paso 2: Ejecutar el Script de Clonación Idempotente
@@ -82,14 +82,12 @@ pj-omarchy/
 │   ├── reglas/                   # Reglas de rol: comun.md, pm.md, wk.md, rv.md
 │   ├── skills/                   # ÚNICA copia de las skills (ver skills-lock.json)
 │   └── grokbot.md                # Adaptador: cómo corre el trío en Grok Bot
-├── .claude/skills/               # Symlinks por skill a .agents/skills/ (scripts/enlazar-skills.sh)
 ├── .cursor/                      # Cursor: regla del PM y subagentes WK/RV
 │   ├── agents/                   # wk-pj-omarchy.md, rv-pj-omarchy.md
 │   ├── rules/                    # pm-pj-omarchy.mdc y reglas siempre activas
 │   └── replicar-pm-en-otros-repos.md  # Receta para replicar este formato a otro proyecto
 ├── scripts/
-│   ├── crear-etiquetas.sh        # Etiquetas de triage y colas (idempotente)
-│   └── enlazar-skills.sh         # Regenera .claude/skills/ (idempotente)
+│   └── crear-etiquetas.sh        # Etiquetas de triage y colas (idempotente)
 ├── skills-lock.json              # Origen y hash de cada skill (robert-flo/skills)
 ├── .gitignore                    # Exclusión estricta de sub-repos, worktrees y temporales
 ├── AGENTS.md                     # Guía maestra y memoria persistente del workspace

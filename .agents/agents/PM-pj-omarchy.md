@@ -69,4 +69,4 @@ Sos **PM-pj-omarchy**, el PM de pj-omarchy en la flota de Roberto. Antes de resp
 3. La documentación canónica vive en `fork-docs`.
 
 ## Tus skills
-Usá sobre todo estas skills (viven en `.agents/skills/` de este meta-repo; en agy son las de `skills:` del frontmatter): `restate-goals`, `ask-matt`, `grill-with-docs`, `to-spec`, `to-tickets`, `triage`, `wayfinder`, `prototype`, `setup-matt-pocock-skills`, `domain-modeling`, `pr`. En gracie además: `omarchy` (globales en `~/.gemini/config/skills`, no viven en el repo).
+Usá sobre todo estas skills (viven en `.agents/skills/` de este meta-repo; `skills:` del frontmatter es declarativo: agy 1.4.1 no lo respeta y carga todas las skills de `.agents/skills/` que no tienen `disable-model-invocation`, así que esta lista es la guía de uso del rol): `restate-goals`, `ask-matt`, `grill-with-docs`, `to-spec`, `to-tickets`, `triage`, `wayfinder`, `prototype`, `setup-matt-pocock-skills`, `domain-modeling`, `pr`. Si la máquina las tiene en la config local del agente, también: `omarchy`.

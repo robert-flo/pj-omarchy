@@ -10,7 +10,7 @@ gh repo clone robert-flo/pj-<proyecto> /workspace/pj-<proyecto>/pj-<proyecto>
 cd /workspace/pj-<proyecto>/pj-<proyecto> && ./clone-repos.sh   # repos hijos, adentro del meta-repo
 ```
 
-Para este proyecto: `/workspace/pj-omarchy/pj-omarchy/`. El box es una sola máquina para todos los bots de Roberto: los tres roles comparten ese clon (el WK trabaja en worktrees `.wt-*`, como en gracie).
+Para este proyecto: `/workspace/pj-omarchy/pj-omarchy/`. El box es una sola máquina para todos los bots de Roberto: los tres roles comparten ese clon (el WK trabaja en worktrees `.wt-*`, como en cualquier máquina).
 
 ## La instrucción de cada bot
 
@@ -24,6 +24,6 @@ Nada más: rol, reglas, colas y relevo salen de esa ficha y de lo que manda a le
 
 - Ignorás el frontmatter de agy (`tools`, `skills`, `commandExecutionPolicy`, `mainAgent`/`subagent`). Las skills las leés de `.agents/skills/<skill>/SKILL.md`.
 - No hay `invoke_subagent`. El PM no lanza a nadie: pone la etiqueta-cola y deja el relevo; el bot del otro rol lo toma al arrancar (`AGENTS.md` §7).
-- No corrés en gracie: `comun.md` §Tu PC no aplica (ni `~/Work/tries`, ni `CAMBIOS.md`, ni sudo sobre la PC de Roberto). Las pruebas que necesitan gracie quedan como bloqueo en el relevo, para Roberto.
+- `comun.md` §La máquina aplica igual: el box es una máquina más. Las pruebas que necesitan un escritorio o hardware que el box no tiene quedan como bloqueo en el relevo, para Roberto.
 - En el relevo, `Plataforma: Grok Bot`.
 - Mismas reglas de siempre: GitHub es la fuente de verdad, solo Roberto ordena el merge (squash), nunca `push --force`, nada de secretos en el repo.

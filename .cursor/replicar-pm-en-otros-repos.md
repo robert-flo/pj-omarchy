@@ -11,17 +11,16 @@ Un meta-repo por proyecto, una sola fuente de verdad, un solo flujo:
 | Fichas del trío (agy + datos) | `.agents/agents/{PM,WK,RV}-<proyecto>.md` | no: se adaptan (paso 3) |
 | Reglas de rol | `.agents/reglas/{comun,pm,wk,rv}.md` | **verbatim**, nunca se editan por proyecto |
 | Skills (única copia) | `.agents/skills/` + `skills-lock.json` | verbatim |
-| Claude Code | `.claude/skills/<skill>` → symlinks | se regeneran con `scripts/enlazar-skills.sh` |
 | Cursor | `.cursor/rules/<pm>.mdc`, `.cursor/agents/{wk,rv}-<proyecto>.md`, `.cursor/rules/no-cursor-coauthor.mdc` | plantillas abajo (paso 5) |
 | Grok Bot | `.agents/grokbot.md` | verbatim, cambiando `pj-omarchy` por el proyecto |
 | Relevo y colas | `AGENTS.md` §Relevo y Colas | verbatim |
-| Scripts | `scripts/crear-etiquetas.sh`, `scripts/enlazar-skills.sh`, `clone-repos.sh` | los dos primeros verbatim; `clone-repos.sh` con la lista de repos del proyecto |
+| Scripts | `scripts/crear-etiquetas.sh`, `clone-repos.sh` | el primero verbatim; `clone-repos.sh` con la lista de repos del proyecto |
 
-No hay `.cursor/skills/`: Cursor carga `.agents/skills/` directo (docs de Cursor, «Agent Skills»), y una copia o symlink ahí duplicaría las skills. Nada apunta a la carpeta global de reglas de agy en `~/.gemini/config/`: las reglas viven en el repo.
+No hay `.cursor/skills/`: Cursor carga `.agents/skills/` directo (docs de Cursor, «Agent Skills»), y una copia o symlink ahí duplicaría las skills. Nada apunta a la carpeta global de reglas de agy en `$HOME/.gemini/config/`: las reglas viven en el repo.
 
 ## 0. Datos del proyecto (sin inventar)
 
-La ficha de partida es la del trío en `robert-flo/antigravity-fleet`, `agentes/<proyecto>/` (para funeraria: `agentes/pj-funeraria-website/`). De ahí y del `AGENTS.md` del repo principal sacás:
+La ficha de partida es la del trío en la copia de reglas de la flota (la carpeta del proyecto; para funeraria: `pj-funeraria-website`). De ahí y del `AGENTS.md` del repo principal sacás:
 
 - **PROYECTO** (`pj-funeraria-website`), **AREA** (texto después de `área:`), **NOMBRE**, **NOMBRE-WK**, **NOMBRE-RV** (los `name` del frontmatter).
 - **slug** de cada rol: el `name` en minúsculas (`PM-pj-x` → `pm-pj-x`); Cursor solo acepta minúsculas y guiones.
@@ -32,8 +31,8 @@ La ficha de partida es la del trío en `robert-flo/antigravity-fleet`, `agentes/
 
 Si no existe `robert-flo/<proyecto>`, **lo crea Roberto o se crea con su OK** (visibilidad: la decide él; pj-omarchy es público). Clon:
 
-- gracie: `~/Work/tries/<proyecto>/` (repos hijos adentro, gitignoreados).
-- box (agy vm o Grok Bot): `/workspace/<proyecto>/<proyecto>/`.
+- cualquier máquina: donde quieras, p. ej. `$HOME/<carpeta>/<proyecto>/` (repos hijos adentro, gitignoreados).
+- box de Grok Bot: `/workspace/<proyecto>/<proyecto>/`.
 
 ## 2. Copiar lo común
 
@@ -44,11 +43,10 @@ O=/ruta/a/pj-omarchy; N=/ruta/al/meta-repo-nuevo
 mkdir -p "$N/.agents" "$N/scripts" "$N/.cursor/rules"
 cp -a "$O/.agents/reglas" "$O/.agents/skills" "$N/.agents/"
 cp -a "$O/skills-lock.json" "$N/"
-cp -a "$O/scripts/crear-etiquetas.sh" "$O/scripts/enlazar-skills.sh" "$N/scripts/"
+cp -a "$O/scripts/crear-etiquetas.sh" "$N/scripts/"
 cp -a "$O/.cursor/rules/no-cursor-coauthor.mdc" "$N/.cursor/rules/"
 sed "s/pj-omarchy/<proyecto>/g" "$O/.agents/grokbot.md" > "$N/.agents/grokbot.md"
 cp -a "$O/clone-repos.sh" "$N/"   # y editás REPOS=( "<dir>:<owner/repo>:<rama>" … )
-(cd "$N" && ./scripts/enlazar-skills.sh)
 ```
 
 También `.gitignore` (con las carpetas de los repos hijos y `.wt-*`) y un `<proyecto>.code-workspace`, igual que en pj-omarchy.
@@ -60,8 +58,8 @@ Copiá las tres fichas del fleet y aplicales exactamente los cambios que tienen 
 1. «Antes de responder, leé completos, en este orden, `.agents/reglas/comun.md` y `.agents/reglas/<rol>.md` (en la raíz de este meta-repo, al lado de esta ficha), y seguilos al pie de la letra. Para el relevo y las colas, `AGENTS.md` §Relevo.»
 2. En «Repos del proyecto», primero el meta-repo: «`<proyecto>` (este meta-repo) → `robert-flo/<proyecto>`, rama base `main` — trío, reglas, skills y scripts del proyecto».
 3. «Roberto habla solo con el PM; en agy el PM lanza al WK y al RV con `invoke_subagent`; en las demás plataformas el traspaso va por las colas de GitHub (`AGENTS.md` §Relevo).»
-4. «Tus skills»: dicen que viven en `.agents/skills/`; las globales de gracie (p. ej. `omarchy`) se nombran aparte.
-5. Frontmatter: `skills:` con la lista corta del rol (`skills/<skill>`), igual que pj-omarchy: PM `restate-goals, ask-matt, grill-with-docs, to-spec, to-tickets, triage, wayfinder, prototype, setup-matt-pocock-skills, domain-modeling, pr`; WK `restate-goals, implement, implement-spec, tdd, code-review, diagnosing-bugs, pr, codebase-design`; RV `restate-goals, code-review, diagnosing-bugs`. WK con `commandExecutionPolicy: auto`; PM y RV quedan en `eager`.
+4. «Tus skills»: dicen que viven en `.agents/skills/`; las de la config local del agente (p. ej. `omarchy`) se nombran aparte, como opcionales.
+5. Frontmatter: `skills:` con la lista corta del rol (`skills/<skill>`), igual que pj-omarchy: PM `restate-goals, ask-matt, grill-with-docs, to-spec, to-tickets, triage, wayfinder, prototype, setup-matt-pocock-skills, domain-modeling, pr`; WK `restate-goals, implement, implement-spec, tdd, code-review, diagnosing-bugs, pr, codebase-design`; RV `restate-goals, code-review, diagnosing-bugs`. Los tres con `commandExecutionPolicy: eager`. Ojo: `skills:` es declarativo; agy 1.4.1 no lo respeta y carga todas las skills de `.agents/skills/` que no tienen `disable-model-invocation`. La lista es la guía de uso del rol; si hay que limitar de verdad, se marca la skill con `disable-model-invocation`. En la frase de skills del cuerpo de la ficha poné lo mismo (no «en agy son las de `skills:`»).
 6. Las secciones del proyecto que tiene pj-omarchy («Reglas de Comentarios y Avance en el Spec» del WK, «Reglas de Comentarios y Veredicto» del RV con `APRUEBO @<sha>`/`BLOQUEO @<sha>`) se copian.
 
 ## 4. `AGENTS.md`
@@ -178,7 +176,7 @@ Un PR al meta-repo nuevo, en rama propia, sin `push --force`, con el body de la 
 
 1. `rg --hidden -n "gemini/config/(fleet)" .` no devuelve nada (ninguna regla se lee de fuera del repo).
 2. `.agents/reglas/` es idéntica a la de pj-omarchy (`diff -r`).
-3. `for l in .claude/skills/*; do test -f "$l/SKILL.md" || echo ROTO "$l"; done` no imprime nada; `.cursor/skills/` no existe.
+3. `.cursor/skills/` no existe (Cursor y agy leen `.agents/skills/` directo).
 4. `skills-lock.json` lista exactamente las carpetas de `.agents/skills/`.
 5. `bash -n` pasa en `clone-repos.sh` y en `scripts/*.sh`.
 6. Existen las tres fichas, la regla del PM (`alwaysApply: true`) y los dos subagentes de Cursor con `name` = slug.

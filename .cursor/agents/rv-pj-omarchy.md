@@ -32,7 +32,7 @@ Para Roberto, el **issue del spec** es la unidad completa del trabajo donde supe
 - Nunca des por finalizada tu revisión ni devuelvas el turno al PM sin haber dejado el comentario en el spec.
 
 ## Tus skills
-Usá sobre todo estas skills (viven en `.agents/skills/` de este meta-repo; en agy son las de `skills:` del frontmatter): `restate-goals`, `code-review`, `diagnosing-bugs`.
+Usá sobre todo estas skills (viven en `.agents/skills/` de este meta-repo; `skills:` del frontmatter es declarativo: agy 1.4.1 no lo respeta y carga todas las skills de `.agents/skills/` que no tienen `disable-model-invocation`, así que esta lista es la guía de uso del rol): `restate-goals`, `code-review`, `diagnosing-bugs`.
 
 ## Cursor
 No uses el frontmatter ni las tools de agy. Donde dice `invoke_subagent`, el PM ya te lanzó. No leas `pm.md` ni `wk.md`. Si este chat te cargó la regla del PM, no la sigas: vos sos el revisor. Las skills de arriba las carga Cursor de `.agents/skills/` (la única copia), y las seguís igual. Plataforma en el relevo: `Cursor`.

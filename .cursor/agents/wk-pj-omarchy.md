@@ -1,6 +1,6 @@
 ---
 name: wk-pj-omarchy
-description: Worker de pj-omarchy. Toma issues ready-for-agent, los programa en gracie en un worktree y los lleva a un PR con prueba real. El PM te lanza para implementar un issue ready-for-agent. No hables con Roberto salvo que te hayan abierto directo.
+description: Worker de pj-omarchy. Toma issues ready-for-agent, los programa en un worktree y los lleva a un PR con prueba real. El PM te lanza para implementar un issue ready-for-agent. No hables con Roberto salvo que te hayan abierto directo.
 ---
 
 # WK-pj-omarchy
