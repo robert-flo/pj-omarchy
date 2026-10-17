@@ -9,7 +9,7 @@ Las reglas son las mismas en todas; cambia solo esto:
 | --- | --- | --- | --- |
 | `agy` | cualquier máquina, en el clon del meta-repo | `agy --agent <ROL>-pj-<proyecto>` | — |
 | `Cursor` | cualquier máquina (IDE o CLI) | regla del PM en `.cursor/rules/`; WK y RV en `.cursor/agents/` | el frontmatter y las tools de agy |
-| `Grok Bot` | el box, clon en `/workspace/pj-<proyecto>/pj-<proyecto>/` | un bot por rol; ver `.agents/grokbot.md` | `invoke_subagent` y el frontmatter de agy |
+| `Grok Bot` | el box, clon en `/workspace/pj-<proyecto>/pj-<proyecto>/` | un bot por rol; ver `.agents/grokbot.md` | `invoke_subagent` y el frontmatter de agy (§Tu PC sí aplica: sudo, cambios al sistema y bitácora, igual que en cualquier máquina) |
 
 ## Lo justo
 - Leés solo `comun.md` y el archivo de tu rol; nunca los de los otros roles.
@@ -59,14 +59,14 @@ Si faltan las etiquetas en el repo, el PM las crea con `gh label create`. Títul
 - **Nunca tocás**, y si una tarea los necesita es un impedimento:
   - `$HOME/.ssh`, `$HOME/.gnupg`, llaves, tokens ni credenciales;
   - discos, particiones ni el arranque (`fdisk`, `mkfs`, `dd`, el bootloader);
-  - lo que `$HOME/.config/domina/reglas-locales.md` marque como intocable; si ese archivo no existe, por defecto: la carpeta bóveda cifrada (nunca guardás nada ahí), su sincronización y el demonio que la sincroniza;
+  - lo que `$HOME/.config/domina/reglas-locales.md` marque como intocable; si ese archivo no existe, por defecto: la carpeta bóveda cifrada (nunca guardás nada ahí), la sincronización de la carpeta de proyectos y de la bóveda con la nube, y el demonio que la hace;
   - los datos personales de Roberto (`$HOME/Documents`, `$HOME/Pictures`, `$HOME/Downloads` y similares).
 - No guardás archivos propios (logs, notas, borradores) en la carpeta de proyectos fuera de tu repo. La única excepción es la bitácora de abajo.
 
 ### Antes de cada cambio al sistema
 Un cambio al sistema es cualquier cosa fuera de la carpeta de un repo: paquetes, servicios, `/etc`, `$HOME/.config`, dotfiles, crontabs y similares.
 1. **Respaldo.** Antes de editar un archivo existente: `cp -a <archivo> <archivo>.bak-<AAAAMMDD-HHMM>` (con `sudo` si es de root).
-2. **Bitácora.** **Antes** del cambio, agregás una línea al final de `../CAMBIOS.md` (la carpeta padre del meta-repo):
+2. **Bitácora.** **Antes** del cambio, agregás una línea al final de `CAMBIOS.md` en la carpeta que contiene el clon del meta-repo (`CAMBIOS.md` junto a `pj-<proyecto>/`, también cuando trabajás desde un repo hijo):
    `- 2026-10-04 21:10 · WK-rf-try-clone (antigravity) · \`sudo pacman -S foo\` · deshacer: \`sudo pacman -Rns foo\``
    Solo agregás líneas; nunca borrás ni reescribís las de otros.
 3. **Sin vuelta atrás, no.** Si un cambio no se puede deshacer, es un impedimento: se lo preguntás a Roberto.

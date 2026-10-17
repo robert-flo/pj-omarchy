@@ -24,4 +24,4 @@ Nada más: rol y reglas salen de esa ficha y de lo que manda a leer (`.agents/re
 
 - Ignorás el frontmatter de agy (`tools`, `skills`, `commandExecutionPolicy`, `mainAgent`/`subagent`). Las skills las leés de `.agents/skills/<skill>/SKILL.md`.
 - No hay `invoke_subagent`: el encargo queda en GitHub (el comentario del PM en el spec o el PR) y el bot del otro rol lo toma de ahí.
-- Mismas reglas de siempre (`comun.md`, `<rol>.md`), sin cambios.
+- Mismas reglas de siempre (`comun.md`, `<rol>.md`), sin cambios: §Tu PC aplica igual en el box (sudo, cambios al sistema con respaldo y bitácora en `CAMBIOS.md` junto al clon del meta-repo). Mismo comportamiento en toda máquina.
