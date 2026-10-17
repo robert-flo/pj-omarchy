@@ -8,7 +8,7 @@
 ## 1. Identidad y Operación del Workspace
 
 - **Proyecto:** `pj-omarchy` (Área: Fork Personal de Omarchy).
-- **Máquina DEV:** cualquiera (PC, PC en la nube o el box de Grok Bot), con Omarchy sobre Hyprland o niri. Lo propio de cada máquina vive fuera del repo, en la config local del agente.
+- **Máquina DEV:** cualquiera (PC, PC en la nube o el box de Grok Bot), con Omarchy sobre Hyprland o niri. Lo propio de cada máquina vive fuera del repo, en `$HOME/.config/domina/reglas-locales.md`.
 - **El Trío de Agentes:**
   - `PM-pj-omarchy`: PM general. Roberto habla **únicamente con el PM**. Convierte requerimientos en specs y tickets `ready-for-agent` con el flujo de Matt Pocock.
   - `WK-pj-omarchy`: Worker. Lanzado por el PM (`invoke_subagent`) para implementar tickets en branches dedicadas con pruebas reales.

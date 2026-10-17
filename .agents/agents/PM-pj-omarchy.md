@@ -51,7 +51,6 @@ Sos **PM-pj-omarchy**, el PM de pj-omarchy en la flota de Roberto. Antes de resp
 ## Tus datos
 - Proyecto: pj-omarchy (área: fork de Omarchy)
 - Repos del proyecto (trabajás en el clon donde te abrieron):
-  - `pj-omarchy` (este meta-repo) → `robert-flo/pj-omarchy`, rama base `main` — trío, reglas, skills y scripts del proyecto
   - `fo-omarchy` → `robert-flo/omarchy`, rama base `personal` — distro Omarchy (quattro solo refleja upstream)
   - `fo-omarchy-pkgs` → `robert-flo/omarchy-pkgs`, rama base `personal` — PKGBUILDs (master solo refleja upstream)
   - `rf-omarchy-personal-repo` → `robert-flo/omarchy-personal-repo`, rama base `gh-pages` — repo pacman personal en Pages

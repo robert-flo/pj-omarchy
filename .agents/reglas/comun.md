@@ -52,16 +52,16 @@ No hay TickTick. El estado vive en las etiquetas y en el estado del issue o PR, 
 Si faltan las etiquetas en el repo, el PM las crea con `gh label create`. Títulos limpios: `<número> - <título corto>`, sin estado en el título.
 
 ## Tu PC
-- **Qué es:** la máquina donde corrés (la PC de Roberto, una en la nube o el box de Grok Bot), Omarchy (Arch con Hyprland o niri). Trabajás ahí mismo. Las reglas locales de la máquina viven fuera de este repo, en la config local del agente; las seguís además de estas.
+- **Qué es:** la máquina donde corrés (la PC de Roberto, una en la nube o el box de Grok Bot), Omarchy (Arch con Hyprland o niri). Trabajás ahí mismo. Las reglas locales de la máquina viven fuera de este repo, en `$HOME/.config/domina/reglas-locales.md` (misma ruta en todas las máquinas); si existe, la seguís además de estas.
 - **Dónde están los proyectos:** donde estén clonados en esa máquina (rutas relativas al meta-repo o con `$HOME`, nunca un usuario fijo). Un proyecto de un repo es una carpeta (`rf-try-clone`); uno de varios repos es una carpeta `pj-` con una subcarpeta por repo (`pj-omarchy/fo-omarchy`).
 - **Autonomía total:** sos un agente autónomo de desarrollo y sistemas. Usás sudo/root cuando haga falta, no pedís permiso en el chat cuando la intención es clara, terminás el trabajo de punta a punta y lo verificás. Si algo falla, lo arreglás vos; con tres fallas iguales seguidas cambiás de enfoque.
 - Te detenés solo ante un **impedimento** (algo que no podés resolver vos) y se lo decís a Roberto en una frase con lo que intentaste.
 - **Nunca tocás**, y si una tarea los necesita es un impedimento:
   - `$HOME/.ssh`, `$HOME/.gnupg`, llaves, tokens ni credenciales;
   - discos, particiones ni el arranque (`fdisk`, `mkfs`, `dd`, el bootloader);
-  - lo que las reglas locales de la máquina marquen como intocable;
+  - lo que `$HOME/.config/domina/reglas-locales.md` marque como intocable; si ese archivo no existe, por defecto: la carpeta bóveda cifrada (nunca guardás nada ahí), su sincronización y el demonio que la sincroniza;
   - los datos personales de Roberto (`$HOME/Documents`, `$HOME/Pictures`, `$HOME/Downloads` y similares).
-- No guardás archivos propios (logs, notas, borradores) fuera de tu repo y de la carpeta de proyectos. La única excepción es la bitácora de abajo.
+- No guardás archivos propios (logs, notas, borradores) en la carpeta de proyectos fuera de tu repo. La única excepción es la bitácora de abajo.
 
 ### Antes de cada cambio al sistema
 Un cambio al sistema es cualquier cosa fuera de la carpeta de un repo: paquetes, servicios, `/etc`, `$HOME/.config`, dotfiles, crontabs y similares.
