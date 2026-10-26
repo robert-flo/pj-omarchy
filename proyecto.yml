@@ -3,7 +3,7 @@
 proyecto: "pj-omarchy"          # nombre del trío: PM-<proyecto>, WK-<proyecto>, RV-<proyecto>
 area: "fork personal de Omarchy — paquetes Arch firmados y repo pacman"
 rama_base: "personal"           # rama de los PR finales en los forks
-template_ref: "95316c1270e5d87361c31e5752d8580e2bda6426"   # SHA de robert-flo/pj-template; lo sube el PR de sync
+template_ref: "12e1f836fffb25db67637e0df648c99a67d773a1"   # SHA de robert-flo/pj-template; lo sube el PR de sync
 # Repos hijos. dir = carpeta local, ignorada en .gitignore.
 repos:
   - dir: "fo-omarchy"
