@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+# pj — arranque de un meta-repo hijo de robert-flo/pj-template (modo dependencia).
+# Lo manda pj-template (plantillas/hijo/pj); no lo edités en el hijo.
+#   ./pj            trae pj-template al SHA de `template_ref` (proyecto.yml) en .pj/tpl y genera
+#                   .agents/ y .cursor/ (fichas, reglas, skills). Corrélo después de cada clone o pull.
+#   ./pj listo [--abrir]  todo de una después de un clone o pull: git pull --rebase --autostash,
+#                   trae el template, genera, instala los hooks, enlaza las fichas en agy, clona los
+#                   repos, corre check e imprime `agy --agent PM-<proyecto>` (--abrir lo arranca).
+#   ./pj hooks      instala los hooks post-merge y post-checkout: cada `git pull` regenera solo.
+#   ./pj <target>   corre un target del Makefile del template: check, humo, clonar, agy, generar…
+# Auth: PJ_TEMPLATE_TOKEN si está (CI); si no, `gh auth git-credential`. PJ_TEMPLATE_DIR=<checkout>
+# usa un pj-template local en vez de bajarlo (pruebas). Python: crea .pj/venv (PyYAML + jsonschema)
+# la primera vez; PY=<python> lo reemplaza.
+set -euo pipefail
+cd "$(dirname "${BASH_SOURCE[0]}")"
+raiz="$PWD"
+if [ "${1:-}" = listo ] && [ -z "${PJ_LISTO_PULL:-}" ]; then
+  # Primero el pull (puede cambiar template_ref o este mismo script); después se vuelve a ejecutar.
+  if git rev-parse --abbrev-ref --symbolic-full-name '@{u}' >/dev/null 2>&1; then
+    echo "pj: git pull --rebase --autostash"
+    git pull --rebase --autostash -q || echo "pj: aviso: el pull falló; sigo con lo que hay (resolvelo y volvé a correr ./pj listo)" >&2
+  else echo "pj: la rama no tiene upstream; salto el pull" >&2; fi
+  PJ_LISTO_PULL=1 exec "$raiz/pj" "$@"
+fi
+ref="$(sed -nE 's/^template_ref:[[:space:]]*["'\'']?([0-9a-f]{40})["'\'']?.*$/\1/p' proyecto.yml)"
+[ -n "$ref" ] || { echo "pj: proyecto.yml no tiene template_ref (SHA de 40 caracteres de robert-flo/pj-template)" >&2; exit 1; }
+
+if [ -n "${PJ_TEMPLATE_DIR:-}" ]; then
+  tpl="$(cd "$PJ_TEMPLATE_DIR" && pwd)"
+else
+  tpl="$raiz/.pj/tpl"
+  if [ "$(git -C "$tpl" rev-parse HEAD 2>/dev/null || true)" != "$ref" ]; then
+    echo "pj: trayendo robert-flo/pj-template@${ref:0:12} en .pj/tpl"
+    mkdir -p "$tpl"; git -C "$tpl" init -q 2>/dev/null || true
+    url=https://github.com/robert-flo/pj-template.git
+    if [ -n "${PJ_TEMPLATE_TOKEN:-}" ]; then
+      auth="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$PJ_TEMPLATE_TOKEN" | base64 -w0)"
+      git -C "$tpl" -c "http.https://github.com/.extraheader=$auth" fetch -q --depth 1 "$url" "$ref"
+    elif command -v gh >/dev/null; then
+      git -C "$tpl" -c credential.helper= -c 'credential.helper=!gh auth git-credential' fetch -q --depth 1 "$url" "$ref"
+    else
+      git -C "$tpl" fetch -q --depth 1 "$url" "$ref"
+    fi
+    git -C "$tpl" -c advice.detachedHead=false checkout -q --detach FETCH_HEAD
+  fi
+fi
+export PJ_RAIZ="$raiz" PJ_TPL="$tpl"
+# Python propio en .pj/venv con PyYAML y jsonschema (requirements.txt del template); nunca el del sistema.
+PY="${PY:-$(bash "$tpl/scripts/py.sh")}"; export PY
+for f in pj .github/workflows/pj-template.yml; do
+  cmp -s "$tpl/plantillas/hijo/$(basename "$f")" "$f" || echo "pj: aviso: $f difiere del de pj-template@${ref:0:12} (el PR de sync lo actualiza)" >&2
+done
+instalar_hooks(){
+  local d h; d="$(git rev-parse --git-path hooks 2>/dev/null)" || { echo "pj: no es un repo git; sin hooks" >&2; return 0; }
+  mkdir -p "$d"
+  for h in post-merge post-checkout; do
+    if [ -e "$d/$h" ] && ! grep -q '# pj-hook' "$d/$h"; then echo "pj: salto $h (ya hay un hook propio)" >&2; continue; fi
+    cat > "$d/$h" <<'HOOK'
+#!/usr/bin/env bash
+# pj-hook: lo instala ./pj hooks. Regenera .pj/, .agents/ y .cursor/ después de cada pull o cambio de rama.
+[ "${0##*/}" = post-checkout ] && [ "${3:-1}" = 0 ] && exit 0
+cd "$(git rev-parse --show-toplevel)" && [ -x ./pj ] || exit 0
+./pj >/dev/null || echo "pj: aviso: no pude regenerar; corré ./pj listo" >&2
+exit 0
+HOOK
+    chmod +x "$d/$h"
+  done
+  echo "pj: hooks post-merge y post-checkout instalados"
+}
+case "${1:-sync}" in
+  sync) exec "$PY" "$tpl/scripts/generar.py" ;;
+  hooks) instalar_hooks; exit 0 ;;
+  listo)
+    shift; abrir=0; for a in "$@"; do case "$a" in --abrir) abrir=1 ;; *) echo "pj: listo no conoce $a" >&2; exit 2 ;; esac; done
+    "$PY" "$tpl/scripts/generar.py"
+    instalar_hooks
+    make -s --no-print-directory -f "$tpl/Makefile" agy clonar check
+    p="$(sed -nE 's/^proyecto:[[:space:]]*["'\'']?([^"'\'' #]+).*$/\1/p' proyecto.yml)"
+    echo; echo "pj: listo. Para arrancar:  agy --agent PM-$p"
+    if [ "$abrir" = 1 ]; then exec agy --agent "PM-$p"; fi
+    exit 0 ;;
+esac
+"$PY" "$tpl/scripts/generar.py" >/dev/null
+exec make -s --no-print-directory -f "$tpl/Makefile" "$@"

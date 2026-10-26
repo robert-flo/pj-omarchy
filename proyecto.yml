@@ -1,0 +1,49 @@
+# Datos del proyecto. Es el único archivo de datos que llenás a mano; después: ./pj
+# Lo valida schema/proyecto.schema.json de pj-template. Los textos van entre comillas (un # sin comillas corta el valor).
+proyecto: "pj-omarchy"          # nombre del trío: PM-<proyecto>, WK-<proyecto>, RV-<proyecto>
+area: "fork personal de Omarchy — paquetes Arch firmados y repo pacman"
+rama_base: "personal"           # rama de los PR finales en los forks
+template_ref: "c2c806f7e8ffe71150a7f6c3d7a357342fa82226"   # SHA de robert-flo/pj-template; lo sube el PR de sync
+# Repos hijos. dir = carpeta local, ignorada en .gitignore.
+repos:
+  - dir: "fo-omarchy"
+    repo: "robert-flo/omarchy"
+    rama: "personal"
+    nota: "fork de la distro Omarchy (quattro solo refleja upstream)"
+  - dir: "fo-omarchy-pkgs"
+    repo: "robert-flo/omarchy-pkgs"
+    rama: "personal"
+    nota: "PKGBUILDs del par sombreado, build en Docker Arch, firma GPG y cron 04:00 (master refleja upstream)"
+  - dir: "rf-omarchy-personal-repo"
+    repo: "robert-flo/omarchy-personal-repo"
+    rama: "gh-pages"
+    nota: "repo pacman binario firmado, servido en GitHub Pages"
+  - dir: "rf-fork-docs"
+    repo: "robert-flo/fork-docs"
+    rama: "main"
+    nota: "documentación canónica; manda si hay contradicción"
+  - dir: "rf-scratchpad"
+    repo: "robert-flo/scratchpad"
+    rama: "main"
+    nota: "histórico, solo lectura"
+  - dir: "rf-omarchy-personal-archive-2026-09"
+    repo: "robert-flo/omarchy-personal-archive-2026-09"
+    rama: "personal"
+    nota: "histórico pre-2026-09, solo lectura"
+# Specs en curso: ref = dueño/repo#N, orden entero, exactamente uno con primero: true.
+specs: []
+notas: |
+  Construye, firma y publica los paquetes Arch del fork personal de Omarchy: fo-omarchy (fuente),
+  fo-omarchy-pkgs (PKGBUILDs de omarchy y omarchy-settings, sombreados con pkgrel >= 99, en
+  lockstep, build en Docker Arch y firma GPG) y rf-omarchy-personal-repo (repo pacman en Pages).
+  La única puerta a / es pacman: nada a mano en /usr/share/omarchy/, ni curl sueltos ni dotfiles
+  managers; las máquinas convergen solo con `omarchy update`. Todo cambio en fo-omarchy se ubica
+  en la Matriz de Decisión de rf-fork-docs (canónica). Nunca issues, PRs ni push a omacom; el
+  rebase con upstream lo hace el cron de las 04:00, no el equipo. Claves privadas solo como
+  secrets de Actions.
+# Archivos propios a mano que pj-template conserva sin tocar.
+extras:
+  - ".agents/grokbot.md"
+  - "pj-omarchy.code-workspace"
+# Skills extra por rol, además de plantillas/roles.yml de pj-template.
+skills_extra: {}
