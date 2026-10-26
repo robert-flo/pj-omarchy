@@ -1,6 +1,6 @@
 # Lo manda robert-flo/pj-template (plantillas/hijo/pj-template.yml); no lo edités en el hijo.
 # - pull_request / push: `./pj check` (trae pj-template al SHA de template_ref y verifica todo).
-# - schedule / dispatch / repository_dispatch: pj-sync sube template_ref al último main de
+# - schedule / dispatch / repository_dispatch: el job sync (mismos pasos que pj-sync.yml) sube template_ref al último main de
 #   pj-template por PR (el PR corre el check de arriba).
 # Secreto: PJ_TEMPLATE_TOKEN (ver docs/pj-template.md en pj-template).
 name: pj-template
@@ -24,8 +24,35 @@ jobs:
       - run: ./pj check
         env:
           PJ_TEMPLATE_TOKEN: ${{ secrets.PJ_TEMPLATE_TOKEN }}
+  # Sync en línea (no `uses:` del reutilizable): un hijo público no puede llamar workflows de
+  # pj-template, que es privado. Mismos pasos que pj-sync.yml.
   sync:
     if: github.event_name != 'pull_request' && github.event_name != 'push'
-    uses: robert-flo/pj-template/.github/workflows/pj-sync.yml@main
-    secrets:
-      PJ_TEMPLATE_TOKEN: ${{ secrets.PJ_TEMPLATE_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PJ_TEMPLATE_TOKEN }}
+          fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          repository: robert-flo/pj-template
+          ref: main
+          token: ${{ secrets.PJ_TEMPLATE_TOKEN }}
+          path: .pj-sync/tpl
+      - uses: actions/checkout@v4
+        with:
+          repository: robert-flo/skills
+          ref: personal
+          path: .pj-sync/skills
+      - name: Sincronizar
+        env:
+          PJ_TEMPLATE_TOKEN: ${{ secrets.PJ_TEMPLATE_TOKEN }}
+        run: |
+          bash .pj-sync/tpl/scripts/ci-sync.sh .pj-sync/tpl .pj-sync/skills
+          cp .pj-sync/tpl/scripts/ci-pr.sh "$RUNNER_TEMP/ci-pr.sh"
+          rm -rf .pj-sync
+      - name: Abrir PR si hay cambios
+        env:
+          GH_TOKEN: ${{ secrets.PJ_TEMPLATE_TOKEN }}
+        run: bash "$RUNNER_TEMP/ci-pr.sh"
