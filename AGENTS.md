@@ -6,7 +6,7 @@ Meta-repo del trío PM/WK/RV del **fork personal de Omarchy** para Cursor y agy.
 - `proyecto.yml`: los datos del proyecto (repos, specs en orden, notas, extras). Lo llenás vos; lo valida el esquema de pj-template.
 - Todo lo demás (reglas, fichas, plantillas, skills, scripts) lo trae `./pj` desde `robert-flo/pj-template` al SHA de `template_ref`, en `.pj/`, y genera `.agents/` y `.cursor/`. Nada de eso se versiona ni se edita a mano. Cómo funciona: `.pj/tpl/docs/pj-template.md`.
 - Extras conservados a mano (`extras:` de `proyecto.yml`): un adaptador propio en `.agents/` (aparte, no se toca) y `pj-omarchy.code-workspace`.
-- Regla de merge: el PM solo mergea cuando Roberto lo ordena sobre un PR con `ready-to-merge`.
+- Regla de merge ([ADR 0014](https://github.com/robert-flo/pj-template/blob/main/docs/adr/0014-el-pm-mergea-tras-apruebo.md)): tras el `APRUEBO <sha>` del RV, el PM mergea sin esperar la orden de Roberto con `gh pr merge <N> --squash --delete-branch --match-head-commit <sha>`, usando el SHA que nombró el RV. Si la cabeza del PR cambió, no mergea y pide otra revisión. Después le pasa a Roberto el link del PR, el del veredicto, el SHA del merge y los pasos de validación manual.
 
 ## Arquitectura
 | Carpeta | Repo | Rama base | Rol |
