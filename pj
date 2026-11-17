@@ -5,15 +5,149 @@
 #                   .agents/ y .cursor/ (fichas, reglas, skills). Corrélo después de cada clone o pull.
 #   ./pj listo [--abrir]  todo de una después de un clone o pull: git pull --rebase --autostash,
 #                   trae el template, genera, instala los hooks, enlaza las fichas en agy, clona los
-#                   repos, corre check e imprime `agy --agent PM-<proyecto>` (--abrir lo arranca).
+#                   repos, corre check e imprime cómo arrancar (--abrir arranca el PM como ./pj agy pm).
 #   ./pj hooks      instala los hooks post-merge y post-checkout: cada `git pull` regenera solo.
-#   ./pj <target>   corre un target del Makefile del template: check, humo, clonar, agy, generar…
+#   ./pj onboard    la entrevista del onboarding (onboarding.yml: misión, no tocar, primeros pasos,
+#                   cómo prueba el WK, qué exige el RV, repos). Idempotente: si ya está hecho, muestra
+#                   los datos y pregunta qué cambiar. --mostrar solo imprime; --si/--respuestas F sin preguntas.
+#   ./pj clean [--onboarding]  deshace ./pj listo para volver a probarlo: borra .pj/, lo generado en
+#                   .agents/ y .cursor/ (solo lo del manifiesto; lo propio se queda y avisa), los hooks de
+#                   pj, los enlaces de agy de este proyecto y los clones de repos sin nada local (cambios,
+#                   ignorados, worktrees, stash, commits o tags sin subir: los deja y sale con 1).
+#                   --onboarding además deja onboarding.yml y `repos:` sin hacer (se niega si tienen
+#                   cambios sin commitear). Idempotente.
+#   ./pj agy [pm|wk|rv] [args…]  ./pj listo y después abre ese agente del trío (pm por defecto) con
+#                   mise, igual que el wrapper agy de la workstation: MISE_MINIMUM_RELEASE_AGE=0,
+#                   `mise use -g antigravity-cli` y `mise x antigravity-cli -- agy
+#                   --dangerously-skip-permissions --agent <ROL>-<proyecto> args…`. Sin mise, el agy del
+#                   PATH. Si ./pj listo falla, no abre nada. Atajos: make agy-pm, make agy-wk, make agy-rv.
+#   ./pj enlazar    solo enlaza las fichas en ~/.gemini/config/agents (./pj listo ya lo hace).
+#   ./pj <target>   corre un target del Makefile del template: check, humo, clonar, generar…
 # Auth: PJ_TEMPLATE_TOKEN si está (CI); si no, `gh auth git-credential`. PJ_TEMPLATE_DIR=<checkout>
 # usa un pj-template local en vez de bajarlo (pruebas). Python: crea .pj/venv (PyYAML + jsonschema)
 # la primera vez; PY=<python> lo reemplaza.
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")"
 raiz="$PWD"
+proy="$(sed -nE 's/^proyecto:[[:space:]]*["'\'']?([^"'\'' #]+).*$/\1/p' proyecto.yml)"
+onboarding_hecho(){ sed -nE 's/^hecho:[[:space:]]*["'\'']?([0-9]{4}-[0-9]{2}-[0-9]{2}).*$/\1/p' onboarding.yml 2>/dev/null; }
+motivo_clon(){ # $1 = carpeta de un repo de proyecto.yml. Imprime por qué NO se puede borrar (vacío = se puede).
+  local d="$1" t
+  [ -d "$d/.git" ] || { echo "no es un clon de git"; return; }
+  [ -z "$(git -C "$d" status --porcelain 2>/dev/null)" ] || { echo "tiene cambios sin commitear"; return; }
+  [ -z "$(git -C "$d" clean -ndX 2>/dev/null)" ] || { echo "tiene archivos ignorados (.env, builds…)"; return; }
+  [ "$(git -C "$d" worktree list --porcelain 2>/dev/null | grep -c '^worktree ')" -le 1 ] || { echo "tiene worktrees enlazados; si ya no existen en disco, git -C $d worktree prune alcanza"; return; }
+  [ -z "$(git -C "$d" stash list 2>/dev/null)" ] || { echo "tiene stash"; return; }
+  # --all incluye HEAD (detached) y los tags; --reflog, los commits que solo quedan en el reflog (un detached
+  # HEAD abandonado, versiones de antes de un rebase); --not --remotes saca lo que ya está subido.
+  [ -z "$(git -C "$d" rev-list --all --reflog --not --remotes 2>/dev/null | head -1)" ] || { echo "tiene commits sin subir (ramas, detached HEAD, tags o solo en el reflog; revisá git -C $d log --all --reflog --not --remotes)"; return; }
+  if [ -n "$(git -C "$d" tag -l | head -1)" ]; then
+    # Tags que apuntan a commits ya subidos: hay que preguntarle al remoto; si no contesta, no se borra.
+    local remotos; remotos="$(timeout 20 git -C "$d" ls-remote --tags origin 2>/dev/null)" || { echo "tiene tags y no pude compararlos con origin"; return; }
+    # Nombres exactos (sin regex: v1.0 no es v1x0), sin el ^{} de los tags anotados.
+    remotos="$(cut -f2 <<< "$remotos" | sed 's/\^{}$//')"
+    while IFS= read -r t; do
+      grep -qxF -- "$t" <<< "$remotos" || { echo "tiene el tag local ${t#refs/tags/} sin subir"; return; }
+    done < <(git -C "$d" for-each-ref --format='%(refname)' refs/tags)
+  fi
+}
+limpiar(){ # ./pj clean [--onboarding]: no necesita el template ni Python.
+  local onb=0 a n l d h dir algo=0 quedan=() motivo f g=0 slug vacio repos_vacios
+  for a in "$@"; do case "$a" in --onboarding) onb=1 ;; *) echo "pj: clean no conoce $a" >&2; exit 2 ;; esac; done
+  slug="$(printf '%s' "$proy" | tr '[:upper:]' '[:lower:]')"
+  if [ "$onb" = 1 ]; then
+    # Antes de borrar nada: --onboarding no pisa cambios sin commitear en onboarding.yml ni en proyecto.yml.
+    vacio="$(cat <<YML
+# Onboarding del trío de $proy: lo propio del proyecto que reciben PM, WK y RV en su ficha.
+# Lo escribe \`./pj onboard\` (entrevista); se puede editar a mano y correr \`./pj\`.
+# hecho vacío = onboarding sin hacer. Esquema: schema/onboarding.schema.json de pj-template.
+version: 1
+hecho: ""
+mision: ""
+no_tocar: []
+reglas_proyecto: []
+primeros_pasos: []
+wk:
+  como_probar: []
+rv:
+  exige: []
+YML
+)"
+    repos_vacios="$(awk 's==1{ if ($0 ~ /^([[:space:]]+[^[:space:]]|- )/ && $0 !~ /^[[:space:]]*#/) next; s=2 } /^repos:/ && s==0 { print "repos: []"; s=1; next } { print }' proyecto.yml)"
+    for f in onboarding.yml proyecto.yml; do
+      if [ "$f" = onboarding.yml ]; then [ -e "$f" ] && [ "$(cat "$f")" != "$vacio" ] || continue
+      else [ "$(cat "$f")" != "$repos_vacios" ] || continue; fi
+      if [ -n "$(git status --porcelain -- "$f" 2>/dev/null)" ]; then
+        echo "pj: no limpio: $f tiene cambios sin commitear y --onboarding lo reescribiría. Commitealos o descartalos (git checkout -- $f) y volvé a correr." >&2; exit 1
+      fi
+    done
+  fi
+  for n in PM WK RV; do
+    l="$HOME/.gemini/config/agents/$n-$proy.md"
+    [ -L "$l" ] || continue
+    case "$(readlink "$l")" in "$raiz"/.agents/agents/*|"$(pwd -P)"/.agents/agents/*) rm -f "$l"; echo "pj: borrado enlace de agy $l"; algo=1 ;; esac
+  done
+  if d="$(git rev-parse --git-path hooks 2>/dev/null)"; then
+    for h in post-merge post-checkout; do
+      if [ -f "$d/$h" ] && grep -q '# pj-hook' "$d/$h"; then rm -f "$d/$h"; echo "pj: borrado hook $h"; algo=1; fi
+    done
+  fi
+  while IFS= read -r dir; do
+    [ -n "$dir" ] && [ -e "$dir" ] || continue
+    motivo="$(motivo_clon "$dir")"
+    if [ -n "$motivo" ]; then quedan+=("$dir ($motivo)"); else rm -rf "${dir:?}"; echo "pj: borrado clon $dir/"; algo=1; fi
+  done < <(sed -nE 's/^[[:space:]]*-?[[:space:]]*dir:[[:space:]]*["'\'']?([A-Za-z0-9][A-Za-z0-9._-]*).*$/\1/p' proyecto.yml)
+  if [ -d .agents ] || [ -d .cursor ]; then
+    # Solo lo que generó ./pj: el manifiesto .agents/generados.txt y los adaptadores conocidos del trío.
+    # Lo versionado (extras) y los archivos propios (.cursor/mcp.json, notas…) se quedan.
+    local gen=() propios
+    [ -f .agents/generados.txt ] && mapfile -t gen < .agents/generados.txt
+    gen+=(".agents/agents/PM-$proy.md" ".agents/agents/WK-$proy.md" ".agents/agents/RV-$proy.md" ".cursor/rules/pm-$slug.mdc"
+          ".cursor/agents/wk-$slug.md" ".cursor/agents/rv-$slug.md" ".agents/generados.txt")
+    for f in "${gen[@]}"; do
+      case "$f" in .agents/*|.cursor/*) ;; *) continue ;; esac
+      case "/$f/" in */../*) continue ;; esac
+      [ -f "$f" ] || [ -L "$f" ] || continue
+      git ls-files --error-unmatch -- "$f" >/dev/null 2>&1 && continue
+      rm -f "$f"; g=$((g+1))
+    done
+    find .agents .cursor -depth -type d -empty -delete 2>/dev/null || true
+    if [ "$g" -gt 0 ]; then echo "pj: borrados $g archivos generados en .agents/ y .cursor/"; algo=1; fi
+    propios="$(git ls-files -o -- .agents .cursor 2>/dev/null)"
+    [ -n "$propios" ] && printf 'pj: dejé %s archivos propios en .agents/ y .cursor/ (no los generó ./pj):\n%s\n' "$(wc -l <<< "$propios")" "$(sed 's/^/  /' <<< "$propios")" >&2
+  fi
+  if [ -d .pj ]; then rm -rf .pj; echo "pj: borrado .pj/ (template y venv)"; algo=1; fi
+  if [ "$onb" = 1 ]; then
+    if [ "$(cat onboarding.yml 2>/dev/null)" != "$vacio" ]; then printf '%s\n' "$vacio" > onboarding.yml; echo "pj: onboarding.yml sin hacer"; algo=1; fi
+    if [ "$repos_vacios" != "$(cat proyecto.yml)" ]; then printf '%s\n' "$repos_vacios" > proyecto.yml; echo "pj: repos de proyecto.yml vacíos"; algo=1; fi
+  fi
+  if [ "${#quedan[@]}" -gt 0 ]; then
+    printf 'pj: no borré %s: guardá o subí ese trabajo y volvé a correr ./pj clean\n' "${quedan[@]}" >&2; exit 1
+  fi
+  if [ "$algo" = 1 ]; then echo "pj: limpio. Para rehacer: ./pj listo"; else echo "pj: nada que limpiar"; fi
+}
+[ "${1:-}" = clean ] && { shift; limpiar "$@"; exit 0; }
+lanzar_agy(){ # $1 = ficha (PM-x, WK-x o RV-x); el resto va a agy. Lo mismo que el wrapper agy de la workstation.
+  local ficha="$1"; shift
+  if command -v mise >/dev/null 2>&1; then
+    export MISE_MINIMUM_RELEASE_AGE=0
+    mise use -g --quiet antigravity-cli || { echo "pj: falló mise use -g antigravity-cli" >&2; exit 1; }
+    exec mise x antigravity-cli -- agy --dangerously-skip-permissions --agent "$ficha" "$@"
+  fi
+  if command -v agy >/dev/null 2>&1; then
+    echo "pj: aviso: no hay mise; uso el agy del PATH" >&2
+    exec agy --dangerously-skip-permissions --agent "$ficha" "$@"
+  fi
+  echo "pj: no encuentro mise ni agy. Instalá mise (sudo pacman -S mise) y volvé a correr ./pj agy" >&2; exit 127
+}
+if [ "${1:-}" = agy ]; then
+  shift; rol=pm
+  case "${1:-}" in pm|wk|rv|PM|WK|RV) rol="${1,,}"; shift ;; esac
+  # Subproceso: el pull de listo puede traer otro ./pj o template_ref; el agente arranca sobre lo nuevo.
+  "$raiz/pj" listo || { echo "pj: ./pj listo falló; no abro agy (arreglalo y volvé a correr ./pj agy)" >&2; exit 1; }
+  echo "pj: abriendo ${rol^^}-$proy"
+  lanzar_agy "${rol^^}-$proy" "$@"
+fi
 if [ "${1:-}" = listo ] && [ -z "${PJ_LISTO_PULL:-}" ]; then
   # Primero el pull (puede cambiar template_ref o este mismo script); después se vuelve a ejecutar.
   if git rev-parse --abbrev-ref --symbolic-full-name '@{u}' >/dev/null 2>&1; then
@@ -47,7 +181,7 @@ fi
 export PJ_RAIZ="$raiz" PJ_TPL="$tpl"
 # Python propio en .pj/venv con PyYAML y jsonschema (requirements.txt del template); nunca el del sistema.
 PY="${PY:-$(bash "$tpl/scripts/py.sh")}"; export PY
-for f in pj .github/workflows/pj-template.yml; do
+for f in pj Makefile .github/workflows/pj-template.yml; do
   cmp -s "$tpl/plantillas/hijo/$(basename "$f")" "$f" || echo "pj: aviso: $f difiere del de pj-template@${ref:0:12} (el PR de sync lo actualiza)" >&2
 done
 instalar_hooks(){
@@ -74,11 +208,22 @@ case "${1:-sync}" in
     shift; abrir=0; for a in "$@"; do case "$a" in --abrir) abrir=1 ;; *) echo "pj: listo no conoce $a" >&2; exit 2 ;; esac; done
     "$PY" "$tpl/scripts/generar.py"
     instalar_hooks
+    if [ -z "$(onboarding_hecho)" ] && [ -t 0 ] && [ -t 1 ]; then
+      read -rp "pj: el onboarding del PM está sin hacer. ¿Lo hacemos ahora? [S/n] " r || r=n
+      case "$r" in ""|s|S|si|sí|y|Y) PJ_EN_LISTO=1 "$PY" "$tpl/scripts/onboard.py" || true ;; esac
+    fi
     make -s --no-print-directory -f "$tpl/Makefile" agy clonar check
-    p="$(sed -nE 's/^proyecto:[[:space:]]*["'\'']?([^"'\'' #]+).*$/\1/p' proyecto.yml)"
-    echo; echo "pj: listo. Para arrancar:  agy --agent PM-$p"
-    if [ "$abrir" = 1 ]; then exec agy --agent "PM-$p"; fi
+    echo
+    if f="$(onboarding_hecho)" && [ -n "$f" ]; then
+      echo "pj: onboarding hecho el $f (./pj onboard lo muestra o lo cambia)."
+      echo "pj: listo. Para arrancar:  make agy-pm   (o ./pj agy pm; o abrí la carpeta en Cursor)"
+    else
+      echo "pj: falta el onboarding del PM. Corré:  ./pj onboard   (después: make agy-pm)"
+    fi
+    if [ "$abrir" = 1 ]; then lanzar_agy "PM-$proy"; fi
     exit 0 ;;
+  onboard) shift; exec "$PY" "$tpl/scripts/onboard.py" "$@" ;;
+  enlazar) exec make -s --no-print-directory -f "$tpl/Makefile" agy ;;
 esac
 "$PY" "$tpl/scripts/generar.py" >/dev/null
 exec make -s --no-print-directory -f "$tpl/Makefile" "$@"
