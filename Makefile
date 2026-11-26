@@ -3,7 +3,7 @@
 # Para actualizar antes de abrir un agente: make listo a-pm  /  make listo c-pm
 # Argumentos extra: make a-pm ARGS="--print hola"  /  make c-pm ARGS="…"
 .DEFAULT_GOAL := help
-.PHONY: help a-pm a-wk a-rv a-os c-pm c-wk c-rv c-os listo onboard sync check clean fleet watch
+.PHONY: help a-pm a-wk a-rv a-os c-pm c-wk c-rv c-os listo onboard sync check clean fleet resume watch
 
 help:
 	@awk 'BEGIN {FS = ":.*## "} /^##@/ {if (n++) printf "\n"; printf "%s\n", substr($$0, 5)} /^[a-z0-9-]+:.*## / {printf "  %-9s %s\n", $$1, $$2}' $(firstword $(MAKEFILE_LIST))
@@ -41,7 +41,9 @@ clean: ## Deshace ./pj listo (ARGS=--onboarding: también el onboarding)
 	@./pj clean $(ARGS)
 
 ##@ Flota (pj-trio)
-fleet: ## Estado de la flota pj-trio (ARGS=--activos, --json)
+fleet: ## Estado real de la flota pj-trio (ARGS="--activos --json --no-gh")
 	@pj-trio fleet . $(ARGS)
-watch: ## Observa .trio (ARGS=--ticket …, --timeout …)
+resume: ## Releva agente caído/sin cuota (ARGS="<clave> --kind cursor")
+	@pj-trio resume . $(ARGS)
+watch: ## Observa .trio y alerta con notify-send (ARGS="--loop --ticket …")
 	@pj-trio watch . $(ARGS)
